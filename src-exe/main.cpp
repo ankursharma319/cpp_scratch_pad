@@ -2,11 +2,18 @@
 #include "MyTypes.hpp"
 
 void demonstrate_operators();
+void demonstrate_templates();
 
 int main() {
     std::cout << "Hello World!" << std::endl;
     demonstrate_operators();
+    demonstrate_templates();
     return 0;
+}
+
+void demonstrate_templates() {
+    char buffer[16]{};
+    std::cout << "Size of buffer is = " << my_size(buffer) << std::endl;
 }
 
 void demonstrate_operators() {

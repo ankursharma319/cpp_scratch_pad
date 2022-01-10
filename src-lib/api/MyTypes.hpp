@@ -25,4 +25,10 @@ Complex operator+(const Complex& a, const Complex& b);
 
 Complex operator "" _im(unsigned long long im);
 
+
+template <size_t N>
+constexpr auto my_size(char (&)[N]) {
+    return N;
+}
+
 #endif

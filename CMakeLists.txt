@@ -14,6 +14,11 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES 
+      ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+endif()
+
 add_subdirectory(src-lib)
 add_subdirectory(src-exe)
 
