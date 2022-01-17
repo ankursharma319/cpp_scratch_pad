@@ -6,6 +6,7 @@ cmake --build _build/release/ \
 && valgrind \
 --tool=callgrind \
 --simulate-cache=yes \
+--callgrind-out-file=callgrind.out \
 ./_build/release/src-exe/MainExe
 
-# ./gprof2dot.py -f callgrind callgrind.out.158836 | dot -Tsvg -o output.svg
+gprof2dot -f callgrind callgrind.out | dot -Tsvg -o callgrind_output.svg

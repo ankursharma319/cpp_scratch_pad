@@ -1,6 +1,7 @@
 #include "demonstrations.hpp"
 #include "MyTypes.hpp"
 #include <iostream>
+#include <optional>
 #include <string_view>
 #include <functional>
 #include <any>
@@ -212,11 +213,23 @@ template <typename T>
 struct my_templated_foo {
     using current_type = T;
     void foo(T t) {
-        std::cout << "my_templated_foo::foo with T " << type_name<decltype(t)>() << std::endl;
+        std::cout << "my_templated_foo::foo with T = " << type_name<decltype(t)>() << std::endl;
     }
 
     void fooRef(T& t) {
-        std::cout << "my_templated_foo::fooRef with T& " << type_name<decltype(t)>() << std::endl;
+        std::cout << "my_templated_foo::fooRef with T& = " << type_name<decltype(t)>() << std::endl;
+    }
+};
+
+template <typename T>
+struct my_const_templated_foo {
+    using current_type = T;
+    void foo(const T t) {
+        std::cout << "my_templated_foo::foo with const T = " << type_name<decltype(t)>() << std::endl;
+    }
+
+    void fooRef(const T& t) {
+        std::cout << "my_templated_foo::fooRef with const T& = " << type_name<decltype(t)>() << std::endl;
     }
 };
 
@@ -252,29 +265,54 @@ void demonstrate_templates_type_deduction() {
     my_const_foo(cip);
     my_const_foo(cicp);
 
-    std::cout << "Trying int as template to class" << std::endl;
+    std::cout << "Trying int as template to class -- " << type_name<decltype(my_templated_foo<int>())>() << std::endl;
     my_templated_foo<int>().foo(vi);
     my_templated_foo<int>().fooRef(vi);
     my_templated_foo<int>().foo(ci);
     //my_templated_foo<int>().fooRef(ci);
 
-    std::cout << "Trying const int as template to class" << std::endl;
+    std::cout << "Trying const int as template to class -- " << type_name<decltype(my_templated_foo<const int>())>() << std::endl;
     my_templated_foo<const int>().foo(vi);
     my_templated_foo<const int>().fooRef(vi);
     my_templated_foo<const int>().foo(ci);
     my_templated_foo<const int>().fooRef(ci);
 
-    std::cout << "Trying int& as template to class" << std::endl;
+    std::cout << "Trying int& as template to class -- " << type_name<decltype(my_templated_foo<int&>())>() << std::endl;
     my_templated_foo<int&>().foo(vi);
     my_templated_foo<int&>().fooRef(vi);
     //my_templated_foo<int&>().foo(ci);
     //my_templated_foo<int&>().fooRef(ci);
 
-    std::cout << "Trying const int& as template to class" << std::endl;
+    std::cout << "Trying const int& as template to class -- " << type_name<decltype(my_templated_foo<const int&>())>() << std::endl;
     my_templated_foo<const int&>().foo(vi);
     my_templated_foo<const int&>().fooRef(vi);
     my_templated_foo<const int&>().foo(ci);
     my_templated_foo<const int&>().fooRef(ci);
+
+    std::cout << "Trying int as template to class -- " << type_name<decltype(my_const_templated_foo<int>())>() << std::endl;
+    my_const_templated_foo<int>().foo(vi);
+    my_const_templated_foo<int>().fooRef(vi);
+    my_const_templated_foo<int>().foo(ci);
+    my_const_templated_foo<int>().fooRef(ci);
+
+    std::cout << "Trying const int as template to class -- " << type_name<decltype(my_const_templated_foo<const int>())>() << std::endl;
+    my_const_templated_foo<const int>().foo(vi);
+    my_const_templated_foo<const int>().fooRef(vi);
+    my_const_templated_foo<const int>().foo(ci);
+    my_const_templated_foo<const int>().fooRef(ci);
+
+    std::cout << "Trying int& as template to class -- " << type_name<decltype(my_const_templated_foo<int&>())>() << std::endl;
+    // STRANGE BEHAVIOUR - const gets dropped in the foo and fooRef - due to https://stackoverflow.com/questions/27727637/why-does-the-const-in-a-const-t-parameter-disappear-when-t-is-a-reference-type
+    my_const_templated_foo<int&>().foo(vi);
+    my_const_templated_foo<int&>().fooRef(vi);
+    //my_const_templated_foo<int&>().foo(ci);
+    //my_const_templated_foo<int&>().fooRef(ci);
+
+    std::cout << "Trying const int& as template to class -- " << type_name<decltype(my_const_templated_foo<const int&>())>() << std::endl;
+    my_const_templated_foo<const int&>().foo(vi);
+    my_const_templated_foo<const int&>().fooRef(vi);
+    my_const_templated_foo<const int&>().foo(ci);
+    my_const_templated_foo<const int&>().fooRef(ci);
 
     static_assert(
         std::is_same<
@@ -329,7 +367,6 @@ void demonstrate_func_templates() {
 
     //This one goes to the main template func
     std::cout << "23 my_equals 24 is " << my_equals(23, 24) << std::endl;
-
     std::cout << "0.567f my_not_equals 0.5670009f is " << my_not_equals(0.576f, 0.5670009f) << std::endl;
 }
 
@@ -478,6 +515,84 @@ void demonstrate_std_any() {
     // std::cout << "dynamic cast of int* to float* = " << dynamic_cast<float*>(&y) << std::endl;
 }
 
+void demonstrate_lambdas() {
+    int vi = 5;
+    int& rvi = vi;
+    int const& rci = vi;
+    int tmp = 4;
+    int&& rval_int = std::move(tmp);
+    std::cout << "Before declaring my_lamda, rvi = " << rvi << std::endl;
+    auto my_lamda = [vi, rvi, rci, rval_int](void) mutable {
+        std::cout << "type of ci in my_lamda = " << type_name<decltype(vi)>() << std::endl;
+        std::cout << "type of rci in my_lamda = " << type_name<decltype(rci)>() << std::endl;
+        std::cout << "type of rvi in my_lamda = " << type_name<decltype(rvi)>() << std::endl;
+        std::cout << "type of rval_int in my_lamda = " << type_name<decltype(rval_int)>() << std::endl;
+        std::cout << "vi in my_lamda = " << vi << std::endl;
+        std::cout << "rci in my_lamda = " << rci << std::endl;
+        std::cout << "rvi in my_lamda = " << rvi << std::endl;
+        std::cout << "rval_int in my_lamda = " <<  rval_int << std::endl;
+        vi = 100;
+        rvi = 200;
+        //rci = 400;
+        rval_int = 234;
+        return;
+    };
+    vi = 6;
+    std::cout << "After declaring my_lamda, rvi = " << rvi << std::endl;
+    std::cout << "After declaring my_lamda, tmp = " << tmp << std::endl;
+    std::cout << "After declaring my_lamda, rval_int = " << rval_int << std::endl;
+    my_lamda();
+    std::cout << "After calling my_lamda, rvi = " << rvi << std::endl;
+    std::cout << "After calling my_lamda, tmp = " << tmp << std::endl;
+    std::cout << "After calling my_lamda, rval_int = " << rval_int << std::endl;
+
+    // Lesson - if not pass by reference explicitly in capture list
+    // will never modify the original variables
+    // even though seems like the type of the variables copied is ref/constref to something
+
+    //Demoing std::function type conversion
+    // std::function have a () operator which takes the args
+    // and calls the functor's () operator with the args
+    // so its possible that for e,g, - first onet takes const ref and next takes copy
+    [[maybe_unused]]
+    std::function<void (const int&)> f1 = [](const int&){};
+    //[[maybe_unused]]
+    // doesnt compile because losing constness
+    //std::function<void (const int&)> f2 = [](int&){}; 
+    [[maybe_unused]]
+    std::function<void (const int&)> f3 = [](int){};
+    [[maybe_unused]]
+    std::function<void (const int&)> f4 = [](const int){};
+    [[maybe_unused]]
+    std::function<void (int&)> f5 = [](const int&){};
+    [[maybe_unused]]
+    std::function<void (int&)> f6 = [](int&){};
+    [[maybe_unused]]
+    std::function<void (int&)> f7 = [](int){};
+    [[maybe_unused]]
+    std::function<void (int&)> f8 = [](int){};
+    [[maybe_unused]]
+    std::function<void (const int)> f9 = [](const int&){};
+    //[[maybe_unused]]
+    // doesnt compile because const in declaration is removed
+    // and is same as f14
+    //std::function<void (const int)> f10 = [](int&){};
+    [[maybe_unused]]
+    std::function<void (const int)> f11 = [](const int){};
+    [[maybe_unused]]
+    std::function<void (const int)> f12 = [](int){};
+    [[maybe_unused]]
+    std::function<void (int)> f13 = [](const int&){};
+    //[[maybe_unused]]
+    // doesnt compile because of perfect forwarding
+    // which means when f14(5), 5 is passed as is to lamda
+    //std::function<void (int)> f14 = [](int&){};
+    [[maybe_unused]]
+    std::function<void (int)> f15 = [](const int){};
+    [[maybe_unused]]
+    std::function<void (int)> f16 = [](int){};
+}
+
 }
 
 void demonstrate_operators() {
@@ -504,11 +619,120 @@ void demonstrate_operators() {
     std::cout << "77_im = " << c10 << std::endl;
 }
 
+namespace {
+
+class MyStruct {
+public:
+    MyStruct() : x_{42} {
+        std::cout << "MyStruct:: default constructor" << std::endl;
+    }
+    MyStruct(int x) : x_{x} {
+        std::cout << "MyStruct:: 2nd constructor" << std::endl;
+    }
+    ~MyStruct() {
+        std::cout << "MyStruct:: destructor" << std::endl;
+    }
+    MyStruct(const MyStruct& m) : x_{m.getX()} {
+        std::cout << "MyStruct:: copy constructor" << std::endl;
+    }
+    MyStruct(MyStruct&& m) : x_{std::move(m.getX())} {
+        std::cout << "MyStruct:: move constructor" << std::endl;
+    }
+    friend void swap(MyStruct& m1, MyStruct& m2);
+    MyStruct& operator=(MyStruct m) {
+        std::cout << "MyStruct:: assignment operator" << std::endl;
+        swap(*this, m);
+        return *this;
+    }
+    int getX() const {
+        return x_;
+    }
+    void setX(const int& x) {
+        x_ = x;
+    }
+private:
+    int x_;
+};
+
+inline void swap(MyStruct& m1, MyStruct& m2) {
+    // enable ADL (not necessary in our case, but good practice)
+    using std::swap;
+    // by swapping the members of two objects,
+    // the two objects are effectively swapped
+    swap(m1.x_, m2.x_);
+}
+
+/*void func_accepting_MyStruct(MyStruct&& m) {
+    std::cout << "inside func_accepting_MyStruct rvalue for m.getX() = " << m.getX() << std::endl;
+}*/
+
+int func_accepting_MyStruct(const MyStruct& m) {
+    std::cout << "inside func_accepting_MyStruct const ref for m.getX() = " << m.getX() << std::endl;
+    std::cout << "type of std::move(m) = " << type_name<decltype(std::move(m))>() << std::endl;
+    // this doesnot infact move, but instead copy - because m is const - https://stackoverflow.com/questions/28595117/why-can-we-use-stdmove-on-a-const-object
+    MyStruct y = std::move(m);
+    std::cout << "done std::move to create y with y.getX() = " << y.getX() << std::endl;
+    return y.getX();
+}
+
+void demonstrate_reference_wrapper() {
+    std::cout << "demonstrating reference wrapper" << std::endl;
+    MyStruct x(99);
+    std::cout << "creating optional normally" << std::endl;
+    [[maybe_unused]]
+    std::optional<MyStruct> op1 = std::optional(x);
+
+    //std::cout << "trying to create optional by reference" << std::endl;
+    //const MyStruct& r = x;
+    // DOESNT COMPILE
+    // std::optional explicitly disallowes references as the type it holds
+    //std::optional<const MyStruct&> op2 = std::optional(r);
+
+    std::cout << "demonstrating reference wrapper" << std::endl;
+    /*MyStruct x(99);
+    std::cout << "creating optional normally" << std::endl;
+    [[maybe_unused]]
+    std::optional<MyStruct> op1 = std::optional(x);*/
+
+}
+
+}
+
+void demonstrate_move_semantics() {
+    std::cout << "Demonstrating move semantics" << std::endl;
+    {
+        MyStruct x;
+        MyStruct xtmp(-20);
+        MyStruct v = x;
+        MyStruct tmp = std::move(xtmp);
+        v.setX(5);
+        std::cout << "Trying to assign x=v" << std::endl;
+        x = v;
+        std::cout << "Trying to assign x=MyStruct(101)" << std::endl;
+        x = MyStruct(101);
+        std::cout << "Trying to assign x=std::move(tmp)" << std::endl;
+        x = std::move(tmp);
+        std::cout << "Done demoing, should call all 3 destructors now" << std::endl;
+    }
+    {
+        MyStruct x {9};
+        func_accepting_MyStruct(x);
+        func_accepting_MyStruct(MyStruct(100));
+        func_accepting_MyStruct(std::move(x));
+    }
+}
+
 void demonstrate_misc() {
     (void) demonstrate_decltype_auto;
     //demonstrate_decltype_auto();
     (void) demonstrate_std_any;
     //demonstrate_std_any();
+    (void) demonstrate_lambdas;
+    //demonstrate_lambdas();
+    (void) demonstrate_move_semantics;
+    //demonstrate_move_semantics();
+    (void) demonstrate_reference_wrapper;
+    //demonstrate_reference_wrapper();
 }
 
 void demonstrate_templates() {
