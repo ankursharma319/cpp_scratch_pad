@@ -152,6 +152,44 @@ void my_foo(T t) {
     return;
 }*/
 
+void intFoo(int const& x) {
+    std::cout << "came in intFoo LValueRef with val = " << x << std::endl;
+}
+
+void intFoo(int&& x) {
+    std::cout << "came in intFoo RValueRef with val = " << x << std::endl;
+}
+
+template <typename T>
+void my_single_forwarding_foo(T&& t) {
+    std::cout << "my_single_forwarding_foo came in the function, type T&& = " << type_name<decltype(t)>() << std::endl;
+    std::cout << "my_single_forwarding_foo, type std::forward<T>(t) = " << type_name<decltype(std::forward<T>(t))>() << std::endl;
+    std::cout << "passing value with simple value" << std::endl;
+    intFoo(t);
+    std::cout << "passing value with static_cast<T&&>" << std::endl;
+    intFoo(static_cast<T&&>(t));
+    std::cout << "passing value with std::forward<T>(t)" << std::endl;
+    intFoo(std::forward<T>(t));
+    std::cout << "passing value with std::move" << std::endl;
+    intFoo(std::move(t));
+    return;
+}
+
+template <typename T>
+void my_second_forwarding_foo(T t) {
+    std::cout << "my_second_forwarding_foo came in the function, type T = " << type_name<decltype(t)>() << std::endl;
+    std::cout << "my_second_forwarding_foo, type std::forward<T>(t) = " << type_name<decltype(std::forward<T>(t))>() << std::endl;
+    std::cout << "passing value with simple value" << std::endl;
+    intFoo(t);
+    std::cout << "passing value with static_cast<T&&>" << std::endl;
+    intFoo(static_cast<T&&>(t));
+    std::cout << "passing value with std::forward<T>(t)" << std::endl;
+    intFoo(std::forward<T>(t));
+    std::cout << "passing value with std::move" << std::endl;
+    intFoo(std::move(t));
+    return;
+}
+
 template <typename T>
 void my_foo(T& t) {
     std::cout << "my_foo Came in the ref function = " << type_name<decltype(t)>() << std::endl;
@@ -233,6 +271,12 @@ struct my_const_templated_foo {
     }
 };
 
+template <typename T>
+void single_template_func(T lol) {
+    (void) lol;
+    return;
+}
+
 void demonstrate_templates_type_deduction() {
     std::cout << "demonstrating templates type deduction" << std::endl;
     int vi = 10;
@@ -313,6 +357,28 @@ void demonstrate_templates_type_deduction() {
     my_const_templated_foo<const int&>().fooRef(vi);
     my_const_templated_foo<const int&>().foo(ci);
     my_const_templated_foo<const int&>().fooRef(ci);
+
+    single_template_func<int>(vi);
+    single_template_func<int&>(vi);
+    single_template_func<int&&>(std::move(vi));
+    single_template_func<int&&>(8);
+    single_template_func<const int&>(8);
+    //single_template_func<int&>(8); - fails to cpmile
+
+    int& rvi = vi;
+    std::cout << "Trying my_single_forwarding_foo" << std::endl;
+    my_single_forwarding_foo(vi);
+    my_single_forwarding_foo(ci);                   //only wants to go to lvalue ref func because it accepts const
+    my_single_forwarding_foo(101);
+    my_single_forwarding_foo(std::move(ci));        //only wants to go to lvalue ref func because it accepts const
+    my_single_forwarding_foo(rvi);
+
+    std::cout << "Trying my_second_forwarding_foo" << std::endl;
+    my_second_forwarding_foo(vi);
+    my_second_forwarding_foo(ci);                   //only wants to go to lvalue ref func because it accepts const
+    my_second_forwarding_foo(101);
+    my_second_forwarding_foo(std::move(ci));        //only wants to go to lvalue ref func because it accepts const
+    my_second_forwarding_foo(rvi);
 
     static_assert(
         std::is_same<
@@ -438,8 +504,8 @@ void demonstrate_decltype_auto() {
 
     // auto is more limited - it doesnt contain constness (usually) or referenceness, just the type
     auto ai = 0;
-    std::function<const int& (void)> rets_const_ref = [](void){
-        return 10;
+    std::function<const int& (void)> rets_const_ref = [&ai](void) -> const int& {
+        return ai;
     };
     std::function<int& (void)> rets_ref = [&ai](void) -> int& {
         return ai;
@@ -482,6 +548,26 @@ void demonstrate_decltype_auto() {
     std::cout << "decltype(a14) is " << type_name<decltype(a14)>() << '\n';
     std::cout << "decltype(a15) is " << type_name<decltype(a15)>() << '\n';
     std::cout << "decltype(a16) is " << type_name<decltype(a16)>() << '\n';
+
+    std::function<void (int&)> func_accepts_lvalue_ref = [](int& x) {
+        std::cout << "func_accepts_lvalue_ref got " << x << std::endl;
+        return;
+    };
+    std::function<void (int&& x)> func_accepts_rvalue_ref = [](int&& x) {
+        std::cout << "func_accepts_rvalue_ref got " << x << std::endl;
+        return;
+    };
+    int tmp = 5;
+    func_accepts_lvalue_ref(ai);
+    // func_accepts_lvalue_ref(ci); - doesnt compile bcoz losing constness
+    int&& xval = static_cast<int&&>(tmp);
+    func_accepts_lvalue_ref(xval);
+    // func_accepts_lvalue_ref(std::move(tmp)); - doesnt compile bcoz rvalue doesnt bind to lvalue reference
+
+    //func_accepts_rvalue_ref(ai); - not an rvalue
+    //func_accepts_rvalue_ref(ci); - not an rvalue
+    //func_accepts_rvalue_ref(xval); - not an rvalue
+    func_accepts_rvalue_ref(std::move(tmp));
 }
 #pragma GCC diagnostic pop
 
@@ -574,7 +660,7 @@ void demonstrate_lambdas() {
     [[maybe_unused]]
     std::function<void (const int)> f9 = [](const int&){};
     //[[maybe_unused]]
-    // doesnt compile because const in declaration is removed
+    // doesnt compile because of perfect forwarding
     // and is same as f14
     //std::function<void (const int)> f10 = [](int&){};
     [[maybe_unused]]
@@ -586,6 +672,12 @@ void demonstrate_lambdas() {
     //[[maybe_unused]]
     // doesnt compile because of perfect forwarding
     // which means when f14(5), 5 is passed as is to lamda
+    // first its passed as a copy to std::function
+    // then its perfectly forwarded to lamda
+    // i.e. it becomes an rvalue reference, which doesnt bind to func accepting non const lvalue ref
+    // perfect forwarding is a simple cast to && - essentially std::move in this case
+    // it makes sense to std::move because std::function got a copy which it
+    // doesnt need to use anymore
     //std::function<void (int)> f14 = [](int&){};
     [[maybe_unused]]
     std::function<void (int)> f15 = [](const int){};
@@ -680,7 +772,10 @@ void demonstrate_reference_wrapper() {
     MyStruct x(99);
     std::cout << "creating optional normally" << std::endl;
     [[maybe_unused]]
-    std::optional<MyStruct> op1 = std::optional(x);
+    std::optional<MyStruct> op1 = std::optional(x); // creates a copy
+    std::cout << "value of x.getX() before = " << x.getX() << std::endl;
+    op1.value().setX(101);
+    std::cout << "value of x.getX() after = " << x.getX() << std::endl;
 
     //std::cout << "trying to create optional by reference" << std::endl;
     //const MyStruct& r = x;
@@ -688,12 +783,18 @@ void demonstrate_reference_wrapper() {
     // std::optional explicitly disallowes references as the type it holds
     //std::optional<const MyStruct&> op2 = std::optional(r);
 
-    std::cout << "demonstrating reference wrapper" << std::endl;
-    /*MyStruct x(99);
-    std::cout << "creating optional normally" << std::endl;
+    std::cout << "creating optional using reference_wrapper" << std::endl;
     [[maybe_unused]]
-    std::optional<MyStruct> op1 = std::optional(x);*/
+    std::optional<std::reference_wrapper<MyStruct>> op2 = std::optional(std::ref(x));
+    std::cout << "value of x.getX() before = " << x.getX() << std::endl;
+    op2.value().get().setX(101);
+    std::cout << "value of x.getX() after = " << x.getX() << std::endl;
 
+    std::cout << "creating optional using reference_wrapper with const ref" << std::endl;
+    [[maybe_unused]]
+    std::optional<std::reference_wrapper<const MyStruct>> op3 = std::optional(std::cref(x));
+    // FAILS TO COMPILE because const ref
+    //op3.value().get().setX(101);
 }
 
 }
@@ -741,5 +842,5 @@ void demonstrate_templates() {
     (void) demonstrate_class_templates;
     //demonstrate_class_templates();
     (void) demonstrate_templates_type_deduction;
-    demonstrate_templates_type_deduction();
+    //demonstrate_templates_type_deduction();
 }
