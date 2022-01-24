@@ -1,4 +1,4 @@
-#include "MyTypes.hpp"
+#include "MyComplex.hpp"
 #include <iostream>
 #include <cmath>
 

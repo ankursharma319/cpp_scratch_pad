@@ -1,5 +1,4 @@
 #include <iostream>
-#include "MyTypes.hpp"
 #include "demonstrations.hpp"
 
 int main() {

@@ -1,5 +1,5 @@
-#ifndef MY_TYPES_HPP
-#define MY_TYPES_HPP
+#ifndef MY_COMPLEX_HPP
+#define MY_COMPLEX_HPP
 
 #include <iostream>
 #include <string>
