@@ -500,23 +500,43 @@ constexpr auto my_variadic_sum_alternate(T t, Ts... ts) {
     }
 }
 
+template<typename... Ts>
+constexpr auto my_variadic_sum_left_fold(Ts... ts) {
+    // ... op pack
+    return (0 + ... + ts);
+}
+
 // forward declare primary template
-template<int...>
+template<typename T, T...>
 struct static_add;
 
 // no args specialization
-template<>
-struct static_add<>
+template<typename T>
+struct static_add<T>
 {
   static constexpr int value = 0;
 };
 
 // the real template
-template<int i, int... tail>
-struct static_add<i, tail...>
+template<typename T, T i, T... tail>
+struct static_add<T, i, tail...>
 {
-  static constexpr int value = i + static_add<tail...>::value;
+  static constexpr T value = i + static_add<T, tail...>::value;
 };
+
+
+template<typename T, typename... Ts>
+inline constexpr bool are_same_v = std::conjunction_v<std::is_same<T, Ts>...>;
+
+template<typename T, typename... Ts>
+constexpr auto my_variadic_sum_same_type(T t, Ts... ts) {
+    static_assert(are_same_v<T, Ts...>);
+    if constexpr (sizeof...(ts) == 0) {
+        return t;
+    } else {
+        return t + my_variadic_sum_same_type(ts...);
+    }
+}
 
 void demonstrate_variadic_templates() {
     std::cout << "Demonstrating veriadic templates" << std::endl;
@@ -525,15 +545,65 @@ void demonstrate_variadic_templates() {
     // of parameters and returns the sum of the values.
     std::cout << "Sum is = " << my_variadic_sum(3, 5, 7) << std::endl;
     std::cout << "Sum is = " << my_variadic_sum_alternate(3, 5.5) << std::endl;
+    std::cout << "Sum is = " << my_variadic_sum_left_fold(5, 6) << std::endl;
+    std::cout << "Sum of empty parameter list = " << my_variadic_sum_left_fold() << std::endl;
+
     [[maybe_unused]]
     int x = 42;
     static_assert(26 == my_variadic_sum(7, 9, 10), "expect 26");
+    std::cout << "Sum of x+x = " << my_variadic_sum(x, x) << std::endl;
     // static_assert(84 == my_variadic_sum(x, x), "expect 84"); - doesnt compile
 
     // Calculate the sum of values guaranteed 
     // at compile time using variadic templates.
-    static_assert(9 == static_add<2, 3, 4>::value, "Expect 9");
-    //static_assert(12.0f == static_add<4.0f, 3.5, 4.5>::value, "Expect 12.0f");
+    static_assert(9 == static_add<int, 2, 3, 4>::value, "Expect 9");
+    static_assert(19999 == static_add<size_t, 9999UL,10000L>::value, "Expect 19999");
+    // float is not allowed as template non-type parameter - by the standard
+    // static_assert(3.0f == static_add<float, 1.0f, 2.0f>::value, "Expect 3");
+
+    // Write a function template that accepts any number
+    // of parameters of the same type and returns the values’ sum. You
+    // may use a variable template are_same_v to store the value
+    // from a type­trait from the Standard Template Library (STL).
+    
+    static_assert(15 == my_variadic_sum_same_type(6, 9), "Expect 15");
+    static_assert(15ul == my_variadic_sum_same_type(6ul, 9ul), "Expect 15");
+    // below fails to compile
+    // static_assert(15ul == my_variadic_sum_same_type(6ul, 9l), "Expect 15");
+}
+
+template<
+    template<class, size_t>
+    class Container,
+    class T,
+    size_t N1,
+    size_t N2
+>
+Container<T, N1+N2> join_containers(const Container<T, N1>& c1, const Container<T, N2>& c2) {
+    Container<T, N1+N2> result;
+    auto copy = [&result, i = 0](const auto& ar) mutable {
+        for(const auto& e : ar) {
+            result[i] = e;
+            ++i;
+        }
+    };
+    copy(c1);
+    copy(c2);
+    return result;
+}
+
+void demonstrate_template_template_parameters() {
+    std::cout << "Demonstrating template template paremeters" << std::endl;
+    //Write a function template that joins two containers
+    //of the same type, which are a template and take a typename and a
+    //size as a parameter. For example, std::array is such a container.
+    std::array<int, 4> a{1, 2, 3, 4};
+    std::array<int, 3> b{5, 6, 7};
+    auto c = join_containers(a, b);
+    std::cout << "Printing the joined container" << std::endl;
+    for (auto const& v: c) {
+        std::cout << "val = " << v << std::endl;
+    }
 }
 
 }
@@ -548,5 +618,7 @@ void demonstrate_templates() {
     (void) demonstrate_my_span;
     //demonstrate_my_span();
     (void) demonstrate_variadic_templates;
-    demonstrate_variadic_templates();
+    //demonstrate_variadic_templates();
+    (void) demonstrate_template_template_parameters;
+    //demonstrate_template_template_parameters();
 }
