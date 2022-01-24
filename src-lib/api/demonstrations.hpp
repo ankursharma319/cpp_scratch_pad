@@ -2,9 +2,11 @@
 #define DEMONSTRATIONS_HPP
 
 #include <cstddef>
+#include <type_traits>
 
 template<typename T, std::size_t SIZE>
 class MyArray {
+    static_assert(not std::is_pointer <T>::value);
 public:
     T& operator[](std::size_t idx);
     const T& operator[](std::size_t idx) const;

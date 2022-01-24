@@ -13,7 +13,7 @@ public:
     constexpr my_span(T* ptr, size_t sz): data_(ptr), size_(sz) {}
 
     template<size_t N>
-    constexpr my_span(std::array<T, N> arr): data_(arr.data()), size_(N) {}
+    constexpr my_span(std::array<T, N>& arr): data_(arr.data()), size_(N) {}
 
     template<size_t N>
     constexpr my_span(T (&arr)[N]): data_(&arr[0]), size_(N) {}

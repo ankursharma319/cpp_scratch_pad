@@ -453,9 +453,12 @@ void demonstrate_my_span() {
     std::cout << "Demonstrating my_span" << std::endl;
     int arr[3] = {23, 4, 6};
     int * ptr = new int[3];
-    std::array<int, 2> stdarr = {3, 4};
+    ptr[0] = 90;
+    ptr[1] = 2;
+    ptr[2] = 5;
+    std::array<int, 2> stdarr {{3, 4}};
     my_span<int> a(arr);
-    my_span<int> b(ptr, 5);
+    my_span<int> b(ptr, 3);
     my_span<int> c(stdarr);
     my_span<int> d;
 
@@ -475,6 +478,62 @@ void demonstrate_my_span() {
     for (const auto& val: d) {
         std::cout << "val = " << val << std::endl;
     }
+    delete[] ptr;
+}
+
+template<typename T>
+constexpr auto my_variadic_sum(T t) {
+    return t;
+}
+
+template<typename T, typename... Ts>
+constexpr auto my_variadic_sum(T t, Ts... ts) {
+    return t + my_variadic_sum(ts...);
+}
+
+template<typename T, typename... Ts>
+constexpr auto my_variadic_sum_alternate(T t, Ts... ts) {
+    if constexpr (sizeof...(ts) == 0) {
+        return t;
+    } else {
+        return t + my_variadic_sum_alternate(ts...);
+    }
+}
+
+// forward declare primary template
+template<int...>
+struct static_add;
+
+// no args specialization
+template<>
+struct static_add<>
+{
+  static constexpr int value = 0;
+};
+
+// the real template
+template<int i, int... tail>
+struct static_add<i, tail...>
+{
+  static constexpr int value = i + static_add<tail...>::value;
+};
+
+void demonstrate_variadic_templates() {
+    std::cout << "Demonstrating veriadic templates" << std::endl;
+
+    // Write a function template that accepts any number
+    // of parameters and returns the sum of the values.
+    std::cout << "Sum is = " << my_variadic_sum(3, 5, 7) << std::endl;
+    std::cout << "Sum is = " << my_variadic_sum_alternate(3, 5.5) << std::endl;
+    [[maybe_unused]]
+    int x = 42;
+    static_assert(26 == my_variadic_sum(7, 9, 10), "expect 26");
+    // static_assert(84 == my_variadic_sum(x, x), "expect 84"); - doesnt compile
+
+    // Calculate the sum of values guaranteed 
+    // at compile time using variadic templates.
+    static_assert(9 == static_add<2, 3, 4>::value, "Expect 9");
+    //static_assert(12.0f == static_add<4.0f, 3.5, 4.5>::value, "Expect 12.0f");
 }
 
 }
@@ -488,4 +547,6 @@ void demonstrate_templates() {
     //demonstrate_templates_type_deduction();
     (void) demonstrate_my_span;
     //demonstrate_my_span();
+    (void) demonstrate_variadic_templates;
+    demonstrate_variadic_templates();
 }
