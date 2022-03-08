@@ -21,12 +21,34 @@ void demonstrate_linked_list() {
     std::cout << "my_list_4.size() = " << my_list_4.size() << std::endl;
     my_list_4.insert_after(my_list_4.cbefore_begin(), -2);
     my_list_4.insert_after(my_list_4.cbefore_begin(), std::size_t(2), -3);
-    my_list_4.insert_after(my_list_4.cend(), my_list_1.cbegin(), my_list_1.cend());
+    my_list_4.insert_after(my_list_4.cbegin(), my_list_1.cbegin(), my_list_1.cend());
+    std::cout << "my_list_4.size() = " << my_list_4.size() << std::endl;
     my_list_4.insert_after(my_list_4.cbegin(), {309, 319});
+    my_list_4.emplace_after(my_list_4.cbefore_begin(), 45);
+    my_list_4.push_front(44);
+    my_list_4.emplace_front(42);
+    my_list_4.emplace_front(42);
+    my_list_4.pop_front();
 
     for (int const& x : my_list_4) {
         std::cout << "Looping my_list_4, x = " << x << std::endl;
     }
+
+    std::cout << "Erasing after cbegin to cbegin+4" << std::endl;
+    auto start_it = my_list_4.cbegin();
+    auto stop_it = start_it;
+    ++stop_it;
+    ++stop_it;
+    ++stop_it;
+    ++stop_it;
+    my_list_4.erase_after(start_it, stop_it);
+
+    for (int const& x : my_list_4) {
+        std::cout << "Looping my_list_4, x = " << x << std::endl;
+    }
+
+    my_list_4.clear();
+    std::cout << "my_list_4.size() = " << my_list_4.size() << std::endl;
     //std::cout << "my_list.empty() = " << my_list.empty() << std::endl;
     /*std::cout << "my_list.head() = " << my_list.head() << std::endl;
     std::cout << "my_list.tail() = " << my_list.tail() << std::endl;
