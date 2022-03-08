@@ -25,4 +25,6 @@ void demonstrate_operators();
 void demonstrate_templates();
 void demonstrate_misc();
 
+void demonstrate_linked_list();
+
 #endif

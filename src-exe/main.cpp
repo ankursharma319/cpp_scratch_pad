@@ -4,7 +4,8 @@
 int main() {
     std::cout << "Hello World!" << std::endl;
     //demonstrate_operators();
-    demonstrate_misc();
-    demonstrate_templates();
+    //demonstrate_misc();
+    //demonstrate_templates();
+    demonstrate_linked_list();
     return 0;
 }
