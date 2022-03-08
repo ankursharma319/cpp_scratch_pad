@@ -36,7 +36,7 @@ public:
     node_ptr operator++();
     // postfix increment
     node_ptr operator++(int);
-private:
+
     node_ptr m_ptr;
 };
 
@@ -69,11 +69,11 @@ public:
     template<class InputIt>
     linked_list(InputIt first, InputIt last);
 
-    linked_list(const linked_list& other) = default;
+    linked_list(const linked_list& other);
     linked_list(linked_list&& other) = default;
     ~linked_list() = default;
 
-    linked_list& operator=(const linked_list& other) = default;
+    linked_list& operator=(const linked_list& other);
     linked_list& operator=(linked_list&& other) = default;
     linked_list& operator=(std::initializer_list<T> ilist);
 

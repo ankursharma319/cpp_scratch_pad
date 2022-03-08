@@ -11,6 +11,18 @@ void demonstrate_linked_list() {
     std::vector<int> tmp_vector {1, 5, 6};
     ankur::linked_list<int> my_list_2 (tmp_vector.begin(), tmp_vector.end());
     std::cout << "my_list_2.size() = " << my_list_2.size() << std::endl;
+    my_list_2 = ankur::linked_list<int>(std::size_t(5), 9);
+    std::cout << "my_list_2.size() = " << my_list_2.size() << std::endl;
+    ankur::linked_list<int> my_list_3 = my_list_2;
+    my_list_3 = my_list_1;
+    my_list_3 = my_list_2;
+    std::cout << "my_list_3.size() = " << my_list_3.size() << std::endl;
+    ankur::linked_list<int> my_list_4 = std::move(my_list_3);
+    std::cout << "my_list_4.size() = " << my_list_4.size() << std::endl;
+
+    for (int const& x : my_list_4) {
+        std::cout << "Looping my_list_4, x = " << x << std::endl;
+    }
     //std::cout << "my_list.empty() = " << my_list.empty() << std::endl;
     /*std::cout << "my_list.head() = " << my_list.head() << std::endl;
     std::cout << "my_list.tail() = " << my_list.tail() << std::endl;

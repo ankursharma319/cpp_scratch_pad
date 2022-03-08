@@ -96,6 +96,19 @@ linked_list<T>::linked_list(InputIt first, InputIt last)
 }
 
 template<typename T>
+linked_list<T>::linked_list(const linked_list<T>& other)
+: linked_list(other.cbegin(), other.cend())
+{
+}
+
+template<typename T>
+linked_list<T>& linked_list<T>::operator=(const linked_list<T>& other) {
+    linked_list<T> copy {other};
+    swap(copy);
+    return *this;
+}
+
+template<typename T>
 linked_list<T>& linked_list<T>::operator=(std::initializer_list<T> ilist) {
     *this = linked_list<T>(ilist);
     return *this;
@@ -115,6 +128,12 @@ void linked_list<T>::assign(InputIt first, InputIt last) {
 template<typename T>
 void linked_list<T>::assign(std::initializer_list<T> ilist) {
     *this = linked_list<T>(ilist);
+}
+
+template<typename T>
+void linked_list<T>::swap(linked_list<T>& other) {
+    using std::swap;
+    swap(m_head, other.m_head);
 }
 
 template<typename T>
@@ -191,6 +210,8 @@ typename linked_list<T>::const_iterator linked_list<T>::cend() const {
 // Explicit template instantiation
 template class linked_list<int>;
 template linked_list<int>::linked_list(std::vector<int>::iterator, std::vector<int>::iterator); 
+template class linked_list_forward_iterator<int, node<int>*>;
+template class linked_list_forward_iterator<const int, node<int>*>;
 
 /*template struct node<int>;
 template linked_list_forward_iterator_volatile<int>;
