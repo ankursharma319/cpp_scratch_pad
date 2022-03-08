@@ -12,12 +12,12 @@ linked_list_forward_iterator<T, node_ptr>::linked_list_forward_iterator(node_ptr
 
 template<typename T, typename node_ptr>
 T& linked_list_forward_iterator<T, node_ptr>::operator*() const {
-    return m_ptr->data;
+    return data_node()->data;
 }
 
 template<typename T, typename node_ptr>
 T* linked_list_forward_iterator<T, node_ptr>::operator->() {
-    return &m_ptr->data;
+    return &data_node()->data;
 }
 
 template<typename T, typename node_ptr>
@@ -45,9 +45,14 @@ node_ptr linked_list_forward_iterator<T, node_ptr>::operator++(int) {
     return tmp.m_ptr;
 }
 
+template<typename T, typename node_ptr>
+node<T>* linked_list_forward_iterator<T, node_ptr>::data_node() const {
+    return static_cast<node<T>*>(m_ptr);
+}
+
 template<typename T>
 linked_list<T>::linked_list()
-: m_head(nullptr)
+: m_head(std::make_unique<node_base>(nullptr))
 {}
 
 template<typename T>
@@ -57,16 +62,11 @@ linked_list<T>::linked_list(size_type count)
 
 template<typename T>
 linked_list<T>::linked_list(size_type count, value_type const& value)
-: m_head(nullptr)
+: linked_list()
 {
-    if (count < 1) {
-        return;
-    }
-    m_head = std::make_unique<node<T>>(node<T> {value, nullptr});
-    node<T>* last_node = m_head.get();
-    for (size_type i = 0; i < count-1; i++) {
-        std::unique_ptr<node<T>> tmp = std::make_unique<node<T>>(node<T> {value, nullptr});
-        last_node->next = std::move(tmp);
+    node_base* last_node = m_head.get();
+    for (size_type i = 0; i < count; i++) {
+        last_node->next = std::make_unique<node<T>>(nullptr, value);
         last_node = last_node->next.get();
     }
 }
@@ -79,19 +79,12 @@ linked_list<T>::linked_list(std::initializer_list<T> init)
 template<typename T>
 template<class InputIt>
 linked_list<T>::linked_list(InputIt first, InputIt last)
-: m_head(nullptr)
+: linked_list()
 {
-    node<T>* last_node = nullptr;
+    node_base* last_node = m_head.get();
     for (auto it = first; it != last; ++it) {
-        std::unique_ptr<node<T>> tmp = std::make_unique<node<T>>(node<T> {*it, nullptr});
-        if (!m_head) {
-            assert(!last_node);
-            m_head = std::move(tmp);
-            last_node = m_head.get();
-        } else {
-            last_node->next = std::move(tmp);
-            last_node = last_node->next.get();
-        }
+        last_node->next = std::make_unique<node<T>>(nullptr, *it);
+        last_node = last_node->next.get();
     }
 }
 
@@ -139,13 +132,13 @@ void linked_list<T>::swap(linked_list<T>& other) {
 template<typename T>
 T& linked_list<T>::front() {
     assert(m_head);
-    return m_head->data;
+    return *begin();
 }
 
 template<typename T>
 T const& linked_list<T>::front() const {
     assert(m_head);
-    return m_head->data;
+    return *cbegin();
 }
 
 template<typename T>
@@ -179,17 +172,17 @@ typename linked_list<T>::const_iterator linked_list<T>::cbefore_begin() const {
 
 template<typename T>
 typename linked_list<T>::iterator linked_list<T>::begin() {
-    return linked_list<T>::iterator(m_head.get());
+    return linked_list<T>::iterator(m_head->next.get());
 }
 
 template<typename T>
 typename linked_list<T>::const_iterator linked_list<T>::begin() const {
-    return linked_list<T>::const_iterator(m_head.get());
+    return linked_list<T>::const_iterator(m_head->next.get());
 }
 
 template<typename T>
 typename linked_list<T>::const_iterator linked_list<T>::cbegin() const {
-    return linked_list<T>::const_iterator(m_head.get());
+    return linked_list<T>::const_iterator(m_head->next.get());
 }
 
 template<typename T>
@@ -210,8 +203,8 @@ typename linked_list<T>::const_iterator linked_list<T>::cend() const {
 // Explicit template instantiation
 template class linked_list<int>;
 template linked_list<int>::linked_list(std::vector<int>::iterator, std::vector<int>::iterator); 
-template class linked_list_forward_iterator<int, node<int>*>;
-template class linked_list_forward_iterator<const int, node<int>*>;
+template class linked_list_forward_iterator<int, node_base*>;
+template class linked_list_forward_iterator<const int, node_base*>;
 
 /*template struct node<int>;
 template linked_list_forward_iterator_volatile<int>;

@@ -8,13 +8,20 @@
 
 namespace ankur {
 
-template<typename T>
-struct node {
-    T data;
-    std::unique_ptr<node<T>> next;
+struct node_base {
+    node_base() : next(nullptr) {}
+    node_base(std::unique_ptr<node_base>&& n): next(std::move(n)) {}
+    std::unique_ptr<node_base> next;
 };
 
-template<typename T, typename node_ptr>
+template<typename T>
+struct node : node_base {
+    node() : node_base() {}
+    node(std::unique_ptr<node_base>&& n, T d): node_base(std::move(n)), data(std::move(d)) {}
+    T data;
+};
+
+template<typename T, typename node_ptr = node_base*>
 class linked_list_forward_iterator {
 public:
     // https://www.internalpointers.com/post/writing-custom-iterators-modern-cpp
@@ -37,14 +44,15 @@ public:
     // postfix increment
     node_ptr operator++(int);
 
+    node<T>* data_node() const;
     node_ptr m_ptr;
 };
 
 template<typename T>
-using linked_list_forward_iterator_volatile = linked_list_forward_iterator<T, node<T>*>;
+using linked_list_forward_iterator_volatile = linked_list_forward_iterator<T>;
 
 template<typename T>
-using linked_list_forward_iterator_constant = linked_list_forward_iterator<const T, node<T>*>;
+using linked_list_forward_iterator_constant = linked_list_forward_iterator<const T>;
 
 template<typename T>
 class linked_list {
@@ -154,7 +162,7 @@ public:
     void sort(Compare comp);
 
 private:
-    std::unique_ptr<node<T>> m_head;
+    std::unique_ptr<node_base> m_head;
 };
 
 template<class T>
