@@ -200,9 +200,53 @@ typename linked_list<T>::const_iterator linked_list<T>::cend() const {
     return nullptr;
 }
 
+template<typename T>
+typename linked_list<T>::iterator linked_list<T>::insert_after(const_iterator pos, const T& value) {
+    node_base* my_node = pos.m_ptr;
+    std::unique_ptr<node_base> old_next = std::move(my_node->next);
+    std::unique_ptr<node<T>> new_node = std::make_unique<node<T>>(std::move(old_next), value);
+    my_node->next = std::move(new_node);
+    return my_node->next.get();
+}
+
+
+template<typename T>
+typename linked_list<T>::iterator linked_list<T>::insert_after(const_iterator pos, T&& value) {
+    node_base* my_node = pos.m_ptr;
+    std::unique_ptr<node_base> old_next = std::move(my_node->next);
+    std::unique_ptr<node<T>> new_node = std::make_unique<node<T>>(std::move(old_next), std::move(value));
+    my_node->next = std::move(new_node);
+    return my_node->next.get();
+}
+
+template<typename T>
+typename linked_list<T>::iterator linked_list<T>::insert_after(const_iterator pos, size_type count, const T& value) {
+    iterator insert_pos = pos.m_ptr;
+    for (size_type i=0; i<count; i++) {
+        insert_pos = insert_after(insert_pos.m_ptr, value);
+    }
+    return insert_pos;
+}
+
+template<typename T>
+template<class InputIt>
+typename linked_list<T>::iterator linked_list<T>::insert_after(const_iterator pos, InputIt first, InputIt last) {
+    iterator insert_pos = pos.m_ptr;
+    for (auto it = first; it != last; it++) {
+        insert_pos = insert_after(insert_pos.m_ptr, *it);
+    }
+    return insert_pos;
+}
+
+template<typename T>
+typename linked_list<T>::iterator linked_list<T>::insert_after(const_iterator pos, std::initializer_list<T> ilist) {
+    return insert_after(pos, ilist.begin(), ilist.end());
+}
+
 // Explicit template instantiation
 template class linked_list<int>;
-template linked_list<int>::linked_list(std::vector<int>::iterator, std::vector<int>::iterator); 
+template linked_list<int>::linked_list(std::vector<int>::iterator, std::vector<int>::iterator);
+template linked_list<int>::linked_list(std::vector<int>::const_iterator, std::vector<int>::const_iterator);
 template class linked_list_forward_iterator<int, node_base*>;
 template class linked_list_forward_iterator<const int, node_base*>;
 

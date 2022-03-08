@@ -19,6 +19,10 @@ void demonstrate_linked_list() {
     std::cout << "my_list_3.size() = " << my_list_3.size() << std::endl;
     ankur::linked_list<int> my_list_4 = std::move(my_list_3);
     std::cout << "my_list_4.size() = " << my_list_4.size() << std::endl;
+    my_list_4.insert_after(my_list_4.cbefore_begin(), -2);
+    my_list_4.insert_after(my_list_4.cbefore_begin(), std::size_t(2), -3);
+    my_list_4.insert_after(my_list_4.cend(), my_list_1.cbegin(), my_list_1.cend());
+    my_list_4.insert_after(my_list_4.cbegin(), {309, 319});
 
     for (int const& x : my_list_4) {
         std::cout << "Looping my_list_4, x = " << x << std::endl;
