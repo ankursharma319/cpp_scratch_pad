@@ -53,6 +53,7 @@ public:
 
     // prefix increment
     node_ptr operator++() {
+        assert(m_ptr);
         m_ptr = m_ptr->next.get();
         return m_ptr;
     }
@@ -172,7 +173,7 @@ public:
     }
 
     bool empty() const {
-        return !m_head;
+        return !m_head->next;
     }
 
     // iterators
@@ -284,11 +285,14 @@ public:
     }
 
     iterator erase_after(const_iterator first, const_iterator last) {
+        // get prev to last node
         assert(first.m_ptr);
-        assert(last.m_ptr);
+        if (first == last) {
+            return last.m_ptr;
+        }
         node_base* first_node = first.m_ptr;
-        node_base* last_node = last.m_ptr;
-        std::unique_ptr<node_base> new_next = std::move(last_node->next);        
+        node_base* prev_to_last_node = get_prev_to_last_node(first, last).m_ptr;
+        std::unique_ptr<node_base> new_next = std::move(prev_to_last_node->next);        
         first_node->next = std::move(new_next);
         return first_node->next.get();
     }
@@ -297,28 +301,66 @@ public:
         erase_after(cbefore_begin(), cend());
     }
 
-    void resize(size_type count);
-    void resize(size_type count, const T& value);
-
     void swap(linked_list& other) {
         using std::swap;
         swap(m_head, other.m_head);
     }
 
     // operations
-    void merge(linked_list& other);
-    void merge(linked_list&& other);
-    template<typename Compare>
-    void merge(linked_list& other, Compare comp);
-    template<typename Compare>
-    void merge(linked_list&& other, Compare comp);
 
-    void splice_after(const_iterator pos, linked_list& other);
-    void splice_after(const_iterator pos, linked_list&& other);
-    void splice_after(const_iterator pos, linked_list& other, const_iterator it);
-    void splice_after(const_iterator pos, linked_list&& other, const_iterator it);
-    void splice_after(const_iterator pos, linked_list& other, const_iterator first, const_iterator last);
-    void splice_after(const_iterator pos, linked_list&& other, const_iterator first, const_iterator last);
+    void merge(linked_list& other) {
+        // assumes sorted list
+        if (this == &other) {
+            return;
+        }
+        std::cout << "merge: this->size() = " << this->size() << std::endl;
+        std::cout << "merge: other.size() = " << other.size() << std::endl;
+        auto it_1 = this->before_begin();
+        auto it_2 = other.before_begin();
+        while (!other.empty()) {
+            std::cout << "merge: new_loop" << std::endl;
+            std::cout << "merge: Looping it_1.m_ptr->next = " << it_1.m_ptr->next.get() << std::endl;
+            std::cout << "merge: Looping it_2.m_ptr->next = " << it_2.m_ptr->next.get() << std::endl;
+            if (end() == it_1.m_ptr->next.get()) {
+                std::cout << "Finished with list1 elements, appending rest of list2 to list1" << std::endl;
+                std::unique_ptr<node_base> node_to_move = std::move(it_2.m_ptr->next);
+                it_1.m_ptr->next = std::move(node_to_move);
+                continue;
+            }
+            T const& val1 = static_cast<node<T>*>(it_1.m_ptr->next.get())->data;
+            T const& val2 = static_cast<node<T>*>(it_2.m_ptr->next.get())->data;
+            std::cout << "merge: Looping val1 = " << val1 << std::endl;
+            std::cout << "merge: Looping val2 = " << val2 << std::endl;
+            if (val1 > val2) {
+                std::unique_ptr<node_base> node_to_move = std::move(it_2.m_ptr->next);
+                std::cout << "merge: val1 > val2" << std::endl;
+                std::unique_ptr<node_base> old_next_of_node_to_move = std::move(node_to_move->next);
+                std::unique_ptr<node_base> new_next_of_node_to_move = std::move(it_1.m_ptr->next);
+                it_2.m_ptr->next = std::move(old_next_of_node_to_move);
+                node_to_move->next = std::move(new_next_of_node_to_move);
+                it_1.m_ptr->next = std::move(node_to_move);
+            }
+            it_1 ++;
+        }
+    }
+
+    void splice_after(const_iterator pos, linked_list& other) {
+        std::unique_ptr<node_base> old_next = std::move(pos.m_ptr->next);
+        auto before_end_it = get_prev_to_last_node(other.cbegin(), other.cend());
+        before_end_it.m_ptr->next = std::move(old_next);
+        std::unique_ptr<node_base> node_to_move = std::move(other.m_head->next);
+        pos.m_ptr->next = std::move(node_to_move);
+    }
+
+    void splice_after(const_iterator pos, linked_list& other, const_iterator it) {
+        (void) other;
+        std::unique_ptr<node_base> old_next = std::move(pos.m_ptr->next);
+        std::unique_ptr<node_base> node_to_move = std::move(it.m_ptr->next);
+        std::unique_ptr<node_base> others_remaining_next = std::move(node_to_move->next);
+        it.m_ptr->next = std::move(others_remaining_next);
+        node_to_move->next = std::move(old_next);
+        pos.m_ptr->next = std::move(node_to_move);
+    }
 
     void remove(const T& value);
     template<class UnaryPredicate>
@@ -335,6 +377,19 @@ public:
     void sort(Compare comp);
 
 private:
+    const_iterator get_prev_to_last_node(const_iterator first, const_iterator last) {
+        assert(first.m_ptr);
+        assert(first != last);
+        auto it = first;
+        auto prev_to_last_it = first;
+        while (it != last) {
+            prev_to_last_it = it++;
+        }
+        assert(prev_to_last_it.m_ptr);
+        assert(prev_to_last_it.m_ptr->next.get() == last.m_ptr);
+        return prev_to_last_it;
+    }
+
     std::unique_ptr<node_base> m_head;
 };
 

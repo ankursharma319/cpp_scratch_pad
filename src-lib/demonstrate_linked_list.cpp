@@ -33,6 +33,7 @@ void demonstrate_linked_list() {
     for (int const& x : my_list_4) {
         std::cout << "Looping my_list_4, x = " << x << std::endl;
     }
+    std::cout << "my_list_4.empty() = " << my_list_4.empty() << std::endl;
 
     std::cout << "Erasing after cbegin to cbegin+4" << std::endl;
     auto start_it = my_list_4.cbegin();
@@ -47,23 +48,32 @@ void demonstrate_linked_list() {
         std::cout << "Looping my_list_4, x = " << x << std::endl;
     }
 
+    my_list_4.merge(my_list_4);
+    ankur::linked_list<int> my_list_5 {1, 5, 6};
+    my_list_1.merge(my_list_5);
+    std::cout << "Merged my_list_1 with my_list_5" << std::endl;
+    for (int const& x : my_list_1) {
+        std::cout << "Looping my_list_1, x = " << x << std::endl;
+    }
+
+    ankur::linked_list<int> my_list_6 {10, 20};
+    my_list_1.splice_after(my_list_1.cbegin(), my_list_6);
+    std::cout << "splice_after my_list_1 with my_list_6" << std::endl;
+    for (int const& x : my_list_1) {
+        std::cout << "Looping my_list_1, x = " << x << std::endl;
+    }
+
+    ankur::linked_list<int> my_list_7 {11, 21, 31};
+    my_list_1.splice_after(my_list_1.cbegin(), my_list_7, my_list_7.cbegin());
+    std::cout << "splice_after my_list_1 with my_list_7" << std::endl;
+    for (int const& x : my_list_1) {
+        std::cout << "Looping my_list_1, x = " << x << std::endl;
+    }
+    for (int const& x : my_list_7) {
+        std::cout << "Looping my_list_7, x = " << x << std::endl;
+    }
+
     my_list_4.clear();
-    std::cout << "my_list_4.size() = " << my_list_4.size() << std::endl;
-    //std::cout << "my_list.empty() = " << my_list.empty() << std::endl;
-    /*std::cout << "my_list.head() = " << my_list.head() << std::endl;
-    std::cout << "my_list.tail() = " << my_list.tail() << std::endl;
-
-    auto ret_it_1 = my_list.insert(my_list.end(), 5);
-    auto ret_it_2 = my_list.insert(my_list.cbegin(), 1);
-    std::cout << "*ret_it_1  = " << *ret_it_1 << std::endl;
-    std::cout << "*ret_it_2 = " << *ret_it_2 << std::endl;
-    auto it_insert = my_list.begin();
-    it_insert++;
-    it_insert++;
-    auto ret_it_3 = my_list.insert(it_insert, {20, 30});
-    std::cout << "*ret_it_3 = " << *ret_it_3 << std::endl;
-
-    for (auto const& x : my_list) {
-        std::cout << "Looping, x = " << x << std::endl;
-    }*/
+    std::cout << "my_list_4.size() after clearing = " << my_list_4.size() << std::endl;
+    std::cout << "my_list_4.empty() = " << my_list_4.empty() << std::endl;
 }
