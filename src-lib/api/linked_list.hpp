@@ -313,27 +313,18 @@ public:
         if (this == &other) {
             return;
         }
-        std::cout << "merge: this->size() = " << this->size() << std::endl;
-        std::cout << "merge: other.size() = " << other.size() << std::endl;
         auto it_1 = this->before_begin();
         auto it_2 = other.before_begin();
         while (!other.empty()) {
-            std::cout << "merge: new_loop" << std::endl;
-            std::cout << "merge: Looping it_1.m_ptr->next = " << it_1.m_ptr->next.get() << std::endl;
-            std::cout << "merge: Looping it_2.m_ptr->next = " << it_2.m_ptr->next.get() << std::endl;
             if (end() == it_1.m_ptr->next.get()) {
-                std::cout << "Finished with list1 elements, appending rest of list2 to list1" << std::endl;
                 std::unique_ptr<node_base> node_to_move = std::move(it_2.m_ptr->next);
                 it_1.m_ptr->next = std::move(node_to_move);
                 continue;
             }
             T const& val1 = static_cast<node<T>*>(it_1.m_ptr->next.get())->data;
             T const& val2 = static_cast<node<T>*>(it_2.m_ptr->next.get())->data;
-            std::cout << "merge: Looping val1 = " << val1 << std::endl;
-            std::cout << "merge: Looping val2 = " << val2 << std::endl;
             if (val1 > val2) {
                 std::unique_ptr<node_base> node_to_move = std::move(it_2.m_ptr->next);
-                std::cout << "merge: val1 > val2" << std::endl;
                 std::unique_ptr<node_base> old_next_of_node_to_move = std::move(node_to_move->next);
                 std::unique_ptr<node_base> new_next_of_node_to_move = std::move(it_1.m_ptr->next);
                 it_2.m_ptr->next = std::move(old_next_of_node_to_move);

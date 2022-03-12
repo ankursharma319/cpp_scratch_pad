@@ -6,6 +6,5 @@ int main() {
     //demonstrate_operators();
     //demonstrate_misc();
     //demonstrate_templates();
-    demonstrate_linked_list();
     return 0;
 }
