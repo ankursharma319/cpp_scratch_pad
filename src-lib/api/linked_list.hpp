@@ -4,9 +4,11 @@
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <sstream>
 #include <type_traits>
 #include <cassert>
 #include <iostream>
+#include <utility>
 
 namespace ankur {
 
@@ -353,19 +355,61 @@ public:
         pos.m_ptr->next = std::move(node_to_move);
     }
 
-    void remove(const T& value);
+    void remove(const T& value) {
+        return remove_if([&value](const T& val){ return val == value; });
+    }
+
     template<class UnaryPredicate>
-    void remove_if(UnaryPredicate p);
+    void remove_if(UnaryPredicate p) {
+        auto it = before_begin();
+        while (it.m_ptr->next.get() != nullptr) {
+            T const& val = static_cast<node<T>*>(it.m_ptr->next.get())->data;
+            if (!p(val)) {
+                it++;
+                continue;
+            }
+            std::unique_ptr<node_base> remaining = std::move(it.m_ptr->next->next);
+            it.m_ptr->next = std::move(remaining);
+        }
+    }
 
-    void reverse();
+    void reverse() {
+        std::unique_ptr<node_base> following = nullptr;
+        std::unique_ptr<node_base> current = std::move(m_head->next);
+        std::unique_ptr<node_base> previous = nullptr;
+        while (current) {
+            following = std::move(current->next);
 
-    void unique();
-    template<class BinaryPredicate>
-    void unique(BinaryPredicate p);
+            current->next = std::move(previous);
+            previous = std::move(current);
+            current = std::move(following);
+        }
+        m_head->next = std::move(previous);
+    }
 
-    void sort();
+    void unique() {
+        auto it = begin();
+        while (it.m_ptr->next.get() != nullptr) {
+            T const& previous_val = static_cast<node<T>*>(it.m_ptr)->data;
+            T const& val = static_cast<node<T>*>(it.m_ptr->next.get())->data;
+            if (previous_val == val) {
+                std::unique_ptr<node_base> node_to_remove = std::move(it.m_ptr->next);
+                std::unique_ptr<node_base> new_next = std::move(node_to_remove->next);
+                it.m_ptr->next = std::move(new_next);
+            } else {
+                it ++;
+            }
+        }
+    }
+
+    void sort() { 
+        return sort([](const T& a, const T& b){ return a < b; });
+    }
+
     template<class Compare>
-    void sort(Compare comp);
+    void sort(Compare comp) {
+        merge_sort(m_head->next, comp);
+    }
 
 private:
     const_iterator get_prev_to_last_node(const_iterator first, const_iterator last) {
@@ -381,39 +425,159 @@ private:
         return prev_to_last_it;
     }
 
+    template<class Compare>
+    void merge_sort(std::unique_ptr<node_base>& node_to_sort, Compare const& comp) {
+        if (!node_to_sort || !node_to_sort->next) {
+            return;
+        }
+        std::unique_ptr<node_base> other {nullptr};
+        split_list(node_to_sort, other);
+        assert(node_to_sort);
+        assert(other);
+        assert(debug_size(node_to_sort)-debug_size(other) <= 1);
+        merge_sort(node_to_sort, comp);
+        merge_sort(other, comp);
+        assert(node_to_sort);
+        assert(other);
+        merge_sorted_nodes(node_to_sort, other, comp);
+        assert(node_to_sort);
+        assert(!other);
+    }
+
+    void split_list(
+        std::unique_ptr<node_base>& begin_a,
+        std::unique_ptr<node_base>& begin_b
+    ) {
+        assert(begin_a);
+        assert(!begin_b);
+        std::unique_ptr<node_base>* ptr_1 {&begin_a->next};
+        std::unique_ptr<node_base>* ptr_2 {&begin_a};
+
+        while (*ptr_1) {
+            ptr_1 = &(*ptr_1)->next;
+            if (*ptr_1) {
+                ptr_1 = &(*ptr_1)->next;
+                ptr_2 = &(*ptr_2)->next;
+            }
+        }
+
+        begin_b = std::move((*ptr_2)->next);
+        (*ptr_2)->next = nullptr;
+        assert(begin_b);
+    }
+
+    template<class Compare>
+    void merge_sorted_nodes(
+        std::unique_ptr<node_base>& a,
+        std::unique_ptr<node_base>& b,
+        Compare const& comp
+    ) {
+        // assumes sorted list
+        std::unique_ptr<node_base> tmp_base = std::make_unique<node_base>(std::move(a));
+        std::unique_ptr<node_base>* current_node = &tmp_base;
+        while (b) {
+            if (!(*current_node)->next) {
+                (*current_node)->next = std::move(b);
+                b = nullptr;
+                continue;
+            }
+            T const& val1 = static_cast<node<T>*>((*current_node)->next.get())->data;
+            T const& val2 = static_cast<node<T>*>(b.get())->data;
+            if (comp(val2, val1)) { // val2 < val1
+                std::unique_ptr<node_base> node_to_move = std::move(b);
+                std::unique_ptr<node_base> old_next_of_node_to_move = std::move(node_to_move->next);
+                std::unique_ptr<node_base> new_next_of_node_to_move = std::move((*current_node)->next);
+                b = std::move(old_next_of_node_to_move);
+                node_to_move->next = std::move(new_next_of_node_to_move);
+                (*current_node)->next = std::move(node_to_move);
+            }
+            current_node = &(*current_node)->next;
+        }
+        a = std::move(tmp_base->next);
+    }
+
+    std::size_t debug_size(std::unique_ptr<node_base> const& n) {
+        std::unique_ptr<node_base> const * ptr = &n;
+        std::size_t i = 0;
+        while(*ptr) {
+            ptr = &(*ptr)->next;
+            i++;
+        }
+        return i;
+    }
+
+    std::string debug_string(node_base const* n) {
+        std::stringstream ss {};
+        while (n) {
+            ss << n << ", ";
+            n = n->next.get();
+        }
+        return ss.str();
+    }
+
     std::unique_ptr<node_base> m_head;
 };
 
 template<class T>
-bool operator==(const linked_list<T>& lhs, const linked_list<T>& rhs);
+bool operator==(const linked_list<T>& lhs, const linked_list<T>& rhs) {
+    auto it_1 = lhs.begin();
+    auto it_2 = rhs.begin();
+    while(it_1 != lhs.end() && it_2 != rhs.end()) {
+        T const& val1 = it_1.data_node()->data;
+        T const& val2 = it_2.data_node()->data;;
+        if (!(val1 == val2)) {
+            return false;
+        }
+        it_1 ++;
+        it_2 ++;
+    }
+    return it_1 == lhs.end() && it_2 == rhs.end();
+}
 
 template<class T>
-bool operator!=(const linked_list<T>& lhs, const linked_list<T>& rhs);
+bool operator!=(const linked_list<T>& lhs, const linked_list<T>& rhs) {
+    return !(lhs == rhs);
+}
 
 template<class T>
-bool operator<(const linked_list<T>& lhs, const linked_list<T>& rhs);
+bool operator<(const linked_list<T>& lhs, const linked_list<T>& rhs) {
+    auto it_1 = lhs.begin();
+    auto it_2 = rhs.begin();
+    while(it_1 != lhs.end() && it_2 != rhs.end()) {
+        T const& val1 = it_1.data_node()->data;
+        T const& val2 = it_2.data_node()->data;;
+        if (!(val1 < val2)) {
+            return false;
+        }
+        it_1 ++;
+        it_2 ++;
+    }
+    return true;
+}
 
 template<class T>
-bool operator<=(const linked_list<T>& lhs, const linked_list<T>& rhs);
+bool operator<=(const linked_list<T>& lhs, const linked_list<T>& rhs) {
+    return (lhs == rhs) || (lhs < rhs);
+}
 
 template<class T>
-bool operator>(const linked_list<T>& lhs, const linked_list<T>& rhs);
+bool operator>(const linked_list<T>& lhs, const linked_list<T>& rhs) {
+    return !(lhs <= rhs);
+}
 
 template<class T>
-bool operator>=(const linked_list<T>& lhs, const linked_list<T>& rhs);
+bool operator>=(const linked_list<T>& lhs, const linked_list<T>& rhs) {
+    return (lhs == rhs) || (lhs > rhs);
+}
 
 }
 
 namespace std {
 
 template<class T>
-void swap(ankur::linked_list<T>& lhs, ankur::linked_list<T>& rhs);
-
-template<class T, class U>
-typename ankur::linked_list<T>::size_type erase(ankur::linked_list<T>& c, const U& value);
-
-template<class T, class Pred>
-typename ankur::linked_list<T>::size_type erase_if(ankur::linked_list<T>& c, Pred pred);
+void swap(ankur::linked_list<T>& lhs, ankur::linked_list<T>& rhs) {
+    lhs.swap(rhs);
+}
 
 }
 

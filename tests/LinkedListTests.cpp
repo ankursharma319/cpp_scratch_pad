@@ -122,3 +122,103 @@ TEST_F(LinkedListTestFixture, test_splice) {
         i++;
     }
 }
+
+TEST_F(LinkedListTestFixture, test_remove) {
+    ankur::linked_list<int> my_list {1, 2, 3, 5, 7, 5, 3, 2, 1};
+    my_list.remove(2);
+    my_list.remove_if([](auto const& val) { return (val == 5) || (val == 7); });
+
+    auto i = 0;
+    std::vector<int> expectation = {1, 3, 3, 1};
+    EXPECT_EQ(expectation.size(), my_list.size());
+    for (auto const& x : my_list) {
+        auto const& y = expectation.at(i);
+        EXPECT_EQ(y, x);
+        i++;
+    }
+}
+
+TEST_F(LinkedListTestFixture, test_reverse) {
+    ankur::linked_list<int> my_list {1, 2, 3};
+    my_list.reverse();
+
+    auto i = 0;
+    std::vector<int> expectation = {3, 2, 1};
+    EXPECT_EQ(expectation.size(), my_list.size());
+    for (auto const& x : my_list) {
+        auto const& y = expectation.at(i);
+        EXPECT_EQ(y, x);
+        i++;
+    }
+}
+
+TEST_F(LinkedListTestFixture, test_unique) {
+    ankur::linked_list<int> my_list {1, 2, 2, 2, 3, 2, 2, 3,  2};
+    my_list.unique();
+
+    auto i = 0;
+    std::vector<int> expectation = {1, 2, 3, 2, 3, 2};
+    EXPECT_EQ(expectation.size(), my_list.size());
+    for (auto const& x : my_list) {
+        auto const& y = expectation.at(i);
+        EXPECT_EQ(y, x);
+        i++;
+    }
+}
+
+TEST_F(LinkedListTestFixture, test_sort) {
+    ankur::linked_list<int> my_list {1, 3, 2, 5, 4, 1};
+    my_list.sort();
+
+    auto i = 0;
+    std::vector<int> expectation = {1, 1, 2, 3, 4, 5};
+    EXPECT_EQ(expectation.size(), my_list.size());
+    for (auto const& x : my_list) {
+        auto const& y = expectation.at(i);
+        EXPECT_EQ(y, x);
+        i++;
+    }
+
+    my_list = {1, 3, 2};
+    my_list.sort();
+
+    i = 0;
+    expectation = {1, 2, 3};
+    EXPECT_EQ(expectation.size(), my_list.size());
+    for (auto const& x : my_list) {
+        auto const& y = expectation.at(i);
+        EXPECT_EQ(y, x);
+        i++;
+    }
+}
+
+TEST_F(LinkedListTestFixture, test_comparison_operators) {
+    ankur::linked_list<int> my_list_1 {1, 2};
+    ankur::linked_list<int> my_list_2 {7, 8, 9};
+    ankur::linked_list<int> my_list_3 {7, 8, 9};
+
+    EXPECT_FALSE(my_list_1 == my_list_2);
+    EXPECT_TRUE(my_list_1 != my_list_2);
+    EXPECT_FALSE(my_list_1 >= my_list_2);
+    EXPECT_TRUE(my_list_1 <= my_list_2);
+    EXPECT_TRUE(my_list_1 < my_list_2);
+    EXPECT_FALSE(my_list_1 > my_list_2);
+
+    EXPECT_TRUE(my_list_2 == my_list_3);
+    EXPECT_FALSE(my_list_2 != my_list_3);
+    EXPECT_TRUE(my_list_2 >= my_list_3);
+    EXPECT_TRUE(my_list_2 <= my_list_3);
+    EXPECT_FALSE(my_list_2 < my_list_3);
+    EXPECT_FALSE(my_list_2 > my_list_3);
+}
+
+TEST_F(LinkedListTestFixture, test_swap) {
+    ankur::linked_list<int> my_list_1 {1, 2};
+    ankur::linked_list<int> my_list_2 {7, 8, 9};
+    ankur::linked_list<int> my_list_3 {7, 8, 9};
+    ankur::linked_list<int> my_list_4 {1, 2};
+
+    std::swap(my_list_1, my_list_2);
+    EXPECT_TRUE(my_list_1 == my_list_3);
+    EXPECT_TRUE(my_list_2 == my_list_4);
+}
