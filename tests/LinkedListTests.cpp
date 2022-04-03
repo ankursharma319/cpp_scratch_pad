@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include "linked_list.hpp"
+#include <algorithm>
+#include <numeric>
 
 TEST(LinkedListTest, test_comparison_operators) {
     ankur::linked_list<int> my_list_1 {1, 2};
@@ -164,4 +166,91 @@ TEST(LinkedListTest, test_swap) {
     std::swap(my_list_1, my_list_2);
     EXPECT_TRUE(my_list_1 == my_list_3);
     EXPECT_TRUE(my_list_2 == my_list_4);
+}
+
+TEST(LinkedListTest, test_std_algorithm_fill_and_iota) {
+    ankur::linked_list<int> my_list(5);
+    EXPECT_EQ(5, my_list.size());
+
+    std::fill(my_list.begin(), my_list.end(), 99);
+    EXPECT_EQ(ankur::linked_list<int>({99, 99, 99, 99, 99}), my_list);
+
+    std::iota (std::begin(my_list), std::end(my_list), 2);
+    EXPECT_EQ(ankur::linked_list<int>({2, 3, 4, 5, 6}), my_list);
+}
+
+TEST(LinkedListTest, test_sort_large) {
+    std::size_t my_size = 1E5;
+    ankur::linked_list<int> my_list(my_size);
+    std::iota (std::begin(my_list), std::end(my_list), 1);
+    EXPECT_EQ(1, *my_list.cbegin());
+
+    my_list.reverse();
+    EXPECT_EQ(my_size, *my_list.cbegin());
+
+    my_list.sort();
+    EXPECT_EQ(1, *my_list.cbegin());
+}
+
+TEST(LinkedListTest, test_non_default_constructible_T) {
+    class MyType {
+    public:
+        MyType(int x):m_x(x+3) {}
+    private:
+        MyType();
+        int m_x;
+    };
+
+    //MyType should_give_compiler_error {};
+
+    ankur::linked_list<MyType> my_list_1 {1, 2};
+    EXPECT_EQ(2, my_list_1.size());
+
+    ankur::linked_list<MyType> my_list_2(std::size_t(4), 2);
+    EXPECT_EQ(4, my_list_2.size());
+
+    ankur::linked_list<MyType> my_list_3(std::size_t(4), MyType(5));
+    EXPECT_EQ(4, my_list_3.size());
+
+    // should be compiler error
+    //ankur::linked_list<MyType> my_list_4(std::size_t(5));
+    //EXPECT_EQ(5, my_list_4.size());
+}
+
+TEST(LinkedListTest, test_const_T) {
+    ankur::linked_list<const int> my_list{1, 3, 4};
+    EXPECT_EQ(3, my_list.size());
+
+    auto it = my_list.begin();
+    EXPECT_EQ(1, *it);
+
+    // should be compiler error
+    // *it = 2;
+    //EXPECT_EQ(2, *it);
+}
+
+TEST(LinkedListTest, test_volatile_T) {
+    ankur::linked_list<volatile int> my_list{1, 3, 4};
+    EXPECT_EQ(3, my_list.size());
+
+    auto it = my_list.begin();
+    EXPECT_EQ(1, *it);
+    *it = 2;
+    EXPECT_EQ(2, *it);
+
+    auto cit = my_list.cbegin();
+    EXPECT_EQ(2, *cit);
+    // should be compiler error
+    //*cit = 0;
+    //EXPECT_EQ(0, *cit);
+}
+
+
+TEST(LinkedListTest, test_reference_T) {
+    // should fail to compile
+
+    /*int a = 2;
+    int b = 5;
+    ankur::linked_list<int&> my_list{a, b};
+    EXPECT_EQ(2, *cit);*/
 }

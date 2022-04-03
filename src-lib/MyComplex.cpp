@@ -7,8 +7,6 @@ Complex::Complex(int re, int im)
 , imaginary_{im}
 {
     std::cout << "Conversion Ctor called with real=" << re << " and imaginary="<< im << std::endl;
-    (void) re;
-    (void) im;
 }
 
 int Complex::real() const {
