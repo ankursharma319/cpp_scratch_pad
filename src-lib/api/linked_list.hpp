@@ -20,6 +20,12 @@ namespace detail {
 struct node_base {
     node_base(): next(nullptr) {}
     node_base(std::unique_ptr<node_base>&& n): next(std::move(n)) {}
+    ~node_base() {
+        // this is an optimization to remove recursiveness of destructors
+        while(next) {
+            next = std::move(next->next);
+        }
+    }
     std::unique_ptr<node_base> next;
 };
 

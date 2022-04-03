@@ -180,7 +180,7 @@ TEST(LinkedListTest, test_std_algorithm_fill_and_iota) {
 }
 
 TEST(LinkedListTest, test_sort_large) {
-    std::size_t my_size = 1E5;
+    std::size_t my_size = 1000000;
     ankur::linked_list<int> my_list(my_size);
     std::iota (std::begin(my_list), std::end(my_list), 1);
     EXPECT_EQ(1, *my_list.cbegin());
