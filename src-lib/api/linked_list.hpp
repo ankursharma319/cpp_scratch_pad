@@ -37,7 +37,19 @@ public:
     using reference = T&;
     using pointer = T*;
 
-    linked_list_forward_iterator(node_ptr ptr): m_node_base_ptr(ptr) {};
+    template<typename U = T>
+    explicit linked_list_forward_iterator(
+        linked_list_forward_iterator<std::add_const_t<U>> it,
+        typename std::enable_if_t<!std::is_const_v<U>, T>* = nullptr
+    ): m_node_base_ptr(it.m_node_base_ptr) {}
+
+    template<typename U = T>
+    explicit linked_list_forward_iterator(
+        linked_list_forward_iterator<std::remove_const_t<U>> it,
+        typename std::enable_if_t<std::is_const_v<U>, T>* = nullptr
+    ): m_node_base_ptr(it.m_node_base_ptr) {}
+
+    explicit linked_list_forward_iterator(node_ptr ptr): m_node_base_ptr(ptr) {}
     // copy constructor, copy assignment operator, destructor= default
 
     reference operator*() const {
@@ -57,17 +69,17 @@ public:
     }
 
     // prefix increment
-    node_ptr operator++() {
+    linked_list_forward_iterator operator++() {
         assert(m_node_base_ptr);
         m_node_base_ptr = m_node_base_ptr->next.get();
-        return m_node_base_ptr;
+        return *this;
     }
 
     // postfix increment
-    node_ptr operator++(int) {
+    linked_list_forward_iterator operator++(int) {
         linked_list_forward_iterator<T, node_ptr> tmp = *this;
         ++(*this);
-        return tmp.m_node_base_ptr;
+        return tmp;
     }
 
     node<T>* data_node() const {
@@ -77,6 +89,9 @@ public:
 private:
     template<typename U>
     friend class linked_list;
+
+    template <typename, typename>
+    friend class linked_list_forward_iterator;
 
     node_ptr m_node_base_ptr;
 };
@@ -207,7 +222,7 @@ public:
     }
 
     iterator end() {
-        return nullptr;
+        return iterator(nullptr);
     }
 
     const_iterator end() const {
@@ -215,7 +230,7 @@ public:
     }
 
     const_iterator cend() const {
-        return nullptr;
+        return const_iterator(nullptr);
     }
 
     // modifiers
@@ -226,14 +241,14 @@ public:
         std::unique_ptr<node_base> old_next = std::move(my_node->next);
         std::unique_ptr<node<T>> new_node = std::make_unique<node<T>>(std::move(old_next), std::move(value));
         my_node->next = std::move(new_node);
-        return my_node->next.get();
+        return iterator(my_node->next.get());
     }
 
     iterator insert_after(const_iterator pos, size_type count, const T& value) {
         assert(pos.m_node_base_ptr);
-        iterator insert_pos = pos.m_node_base_ptr;
+        iterator insert_pos = iterator(pos);
         for (size_type i=0; i<count; i++) {
-            insert_pos = insert_after(insert_pos.m_node_base_ptr, value);
+            insert_pos = insert_after(const_iterator(insert_pos), value);
         }
         return insert_pos;
     }
@@ -241,9 +256,9 @@ public:
     template<class InputIt>
     iterator insert_after(const_iterator pos, InputIt first, InputIt last) {
         assert(pos.m_node_base_ptr);
-        iterator insert_pos = pos.m_node_base_ptr;
+        iterator insert_pos = iterator(pos);
         for (auto it = first; it != last; it++) {
-            insert_pos = insert_after(insert_pos.m_node_base_ptr, *it);
+            insert_pos = insert_after(const_iterator(insert_pos), *it);
         }
         return insert_pos;
     }
@@ -259,7 +274,7 @@ public:
         std::unique_ptr<node_base> old_next = std::move(my_node->next);
         std::unique_ptr<node<T>> new_node = std::make_unique<node<T>>(std::move(old_next), T(std::forward<Args...>(args...)));
         my_node->next = std::move(new_node);
-        return my_node->next.get();
+        return iterator(my_node->next.get());
     }
 
     void push_front(const T& value) {
@@ -285,20 +300,20 @@ public:
         std::unique_ptr<node_base> old_next = std::move(my_node->next);
         std::unique_ptr<node_base> new_next = std::move(old_next->next);        
         my_node->next = std::move(new_next);
-        return my_node->next.get();
+        return iterator(++pos);
     }
 
     iterator erase_after(const_iterator first, const_iterator last) {
         // get prev to last node
         assert(first.m_node_base_ptr);
         if (first == last) {
-            return last.m_node_base_ptr;
+            return iterator(last);
         }
         node_base* first_node = first.m_node_base_ptr;
         node_base* prev_to_last_node = get_prev_to_last_node(first, last).m_node_base_ptr;
         std::unique_ptr<node_base> new_next = std::move(prev_to_last_node->next);        
         first_node->next = std::move(new_next);
-        return first_node->next.get();
+        return iterator(++first);
     }
 
     void clear() {
@@ -320,7 +335,7 @@ public:
         auto it_1 = this->before_begin();
         auto it_2 = other.before_begin();
         while (!other.empty()) {
-            if (end() == it_1.m_node_base_ptr->next.get()) {
+            if (end() == ++iterator(it_1)) {
                 std::unique_ptr<node_base> node_to_move = std::move(it_2.m_node_base_ptr->next);
                 it_1.m_node_base_ptr->next = std::move(node_to_move);
                 continue;
