@@ -322,6 +322,10 @@ public:
         std::cout << "DONE debug printing" << std::endl;
     }
 
+    bool operator==(const doubly_linked_list& rhs) const {
+        return std::equal(begin(), end(), rhs.begin(), rhs.end());
+    }
+
 private:
     void merge_sort(doubly_linked_list& d) {
         if (d.size() == 0 || d.size() == 1) {
@@ -374,10 +378,6 @@ private:
 
     detail::node * m_sentinel;
 };
-
-bool operator==(const doubly_linked_list& lhs, const doubly_linked_list& rhs) {
-    return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-}
 
 }
 
