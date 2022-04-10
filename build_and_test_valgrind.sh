@@ -7,3 +7,6 @@ cmake --build _build/debug/ \
 --track-origins=yes \
 --log-file=valgrind-out.txt \
 ./_build/debug/tests/CppScratchPadTests
+
+# for proper bracktaces
+#&& catchsegv ./_build/debug/tests/CppScratchPadTests \

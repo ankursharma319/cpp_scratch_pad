@@ -20,9 +20,11 @@ struct node
     node * prev {nullptr};
     node * next {nullptr};
 
-    node(int _data, node * _prev, node * _next)
+    node(int _data = 0, node * _prev = nullptr, node * _next = nullptr)
     : data(_data), prev(_prev), next(_next)
-    {}
+    {
+        link();
+    }
 
     void link() {
         if (prev) {
@@ -40,6 +42,14 @@ struct node
         if (next) {
             next->prev = prev;
         }
+    }
+
+    bool isTail() {
+        return next == nullptr;
+    }
+    
+    bool isHead() {
+        return prev == nullptr;
     }
 };
 
@@ -91,11 +101,10 @@ public:
         if (count < 1) {
             return;
         }
-        m_head = new detail::node(0, nullptr, nullptr);
+        m_head = new detail::node();
         detail::node * previous = m_head;
         for (std::size_t i=1; i<count; i++) {
-            detail::node * current = new detail::node(0, previous, nullptr);
-            current->link();
+            detail::node * current = new detail::node(0, previous);
             previous = current;
         }
         m_tail = previous;
@@ -105,11 +114,10 @@ public:
     explicit doubly_linked_list(InputIt first, InputIt last)
     : doubly_linked_list()
     {
-        m_head = new detail::node(*(first++), nullptr, nullptr);
+        m_head = new detail::node(*(first++));
         detail::node * previous = m_head;
         for (auto it = first; it != last; it++) {
-            detail::node * current = new detail::node(*it, previous, nullptr);
-            current->link();
+            detail::node * current = new detail::node(*it, previous);
             previous = current;
         }
         m_tail = previous;
@@ -144,7 +152,7 @@ public:
     }
 
     bool empty() const {
-        return !m_head->next;
+        return !m_head;
     }
 
     // iterators
@@ -168,9 +176,14 @@ public:
     }
 
     iterator insert(iterator pos, int value) {
-        assert(pos.m_node_ptr);
-        detail::node * current = new detail::node(value, pos.m_node_ptr->prev, pos.m_node_ptr);
-        current->link();
+        detail::node * current = nullptr;
+        if (!pos.m_node_ptr) {
+            //assume need to push something to the end
+            current = new detail::node(value, m_tail);
+            m_tail = current;
+        } else {
+            current = new detail::node(value, pos.m_node_ptr->prev, pos.m_node_ptr);
+        }
         return iterator(current);
     }
 
