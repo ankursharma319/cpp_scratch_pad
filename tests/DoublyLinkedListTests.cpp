@@ -33,6 +33,27 @@ TEST(DoublyLinkedListTest, test_iterator_constructor) {
     EXPECT_EQ(it1, it2);
 }
 
+TEST(DoublyLinkedListTest, test_iterator_increment_decrement) {
+    ankur::doubly_linked_list my_list {2, 4, 9};
+    EXPECT_EQ(3, my_list.size());
+
+    auto it = my_list.begin();
+    EXPECT_EQ(2, *it);
+    ++it;
+    EXPECT_EQ(4, *it);
+    ++it;
+    EXPECT_EQ(9, *it);
+    ++it;
+    --it;
+    EXPECT_EQ(9, *it);
+    --it;
+    EXPECT_EQ(4, *it);
+    --it;
+    EXPECT_EQ(2, *it);
+    --it;
+    ++it;
+    EXPECT_EQ(2, *it);
+}
 
 TEST(DoublyLinkedListTest, test_insert) {
     ankur::doubly_linked_list my_list {1, 2, 3};
@@ -73,7 +94,6 @@ TEST(DoublyLinkedListTest, test_erase) {
     EXPECT_EQ(4, *new_it);
 }
 
-/*
 TEST(DoublyLinkedListTest, test_merge) {
     ankur::doubly_linked_list my_list {2, 4, 6, 7};
     my_list.merge(my_list);
@@ -88,6 +108,7 @@ TEST(DoublyLinkedListTest, test_merge) {
     EXPECT_EQ(ankur::doubly_linked_list({1, 2, 4, 5, 6, 6, 7, 9, 9}), my_list);
 }
 
+/*
 TEST(DoublyLinkedListTest, test_remove) {
     ankur::doubly_linked_list my_list {1, 2, 3, 2, 1};
     my_list.remove(2);

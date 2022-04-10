@@ -23,6 +23,12 @@ struct node
     node(int _data = 0, node * _prev = nullptr, node * _next = nullptr)
     : data(_data), prev(_prev), next(_next)
     {
+        if (!prev) {
+            prev = this;
+        }
+        if (!next) {
+            next = this;
+        }
         link();
     }
 
@@ -31,29 +37,21 @@ struct node
     }
 
     void link() {
-        if (prev) {
+        if (prev != this) {
             prev->next = this;
         }
-        if (next) {
+        if (next != this) {
             next->prev = this;
         }
     }
 
     void unlink() {
-        if (prev) {
+        if (prev != this) {
             prev->next = next;
         }
-        if (next) {
+        if (next != this) {
             next->prev = prev;
         }
-    }
-
-    bool isTail() {
-        return next == nullptr;
-    }
-    
-    bool isHead() {
-        return prev == nullptr;
     }
 };
 
@@ -78,7 +76,12 @@ struct doubly_linked_list_iterator
     }
 
     doubly_linked_list_iterator operator++(int);
-    doubly_linked_list_iterator& operator--();
+    doubly_linked_list_iterator& operator--() {
+        assert(m_node_ptr);
+        m_node_ptr = m_node_ptr->prev;
+        return *this;
+    }
+
     doubly_linked_list_iterator operator--(int);
     bool operator==(doubly_linked_list_iterator const& other) const {
         return this->m_node_ptr == other.m_node_ptr;
@@ -97,34 +100,29 @@ public:
     using iterator = detail::doubly_linked_list_iterator;
 
     // constructors && assignments
-    doubly_linked_list(): m_head(nullptr), m_tail(nullptr) {}
+    doubly_linked_list(): m_sentinel(new detail::node()) {}
 
     explicit doubly_linked_list(std::size_t count)
     : doubly_linked_list()
     {
-        if (count < 1) {
-            return;
-        }
-        m_head = new detail::node();
-        detail::node * previous = m_head;
-        for (std::size_t i=1; i<count; i++) {
-            detail::node * current = new detail::node(0, previous);
+        detail::node * previous = m_sentinel;
+        for (std::size_t i=0; i<count; i++) {
+            detail::node * current = new detail::node(0, previous, m_sentinel);
             previous = current;
         }
-        m_tail = previous;
+        m_sentinel->prev = previous;
     }
 
     template<class InputIt>
     explicit doubly_linked_list(InputIt first, InputIt last)
     : doubly_linked_list()
     {
-        m_head = new detail::node(*(first++));
-        detail::node * previous = m_head;
+        detail::node * previous = m_sentinel;
         for (auto it = first; it != last; it++) {
-            detail::node * current = new detail::node(*it, previous);
+            detail::node * current = new detail::node(*it, previous, m_sentinel);
             previous = current;
         }
-        m_tail = previous;
+        m_sentinel->prev = previous;
     }
 
     explicit doubly_linked_list(std::initializer_list<int> init)
@@ -138,13 +136,11 @@ public:
     //  Element access
 
     int& front() {
-        assert(m_head);
-        return m_head->data;
+        return _head_node()->data;
     }
 
     int& back() {
-        assert(m_tail);
-        return m_tail->data;
+        return _tail_node()->data;
     }
 
     // capacity
@@ -158,30 +154,24 @@ public:
     }
 
     bool empty() const {
-        return !m_head;
+        return _head_node() == m_sentinel;
     }
 
     // iterators
 
     iterator begin() const {
-        return iterator(m_head);
+        return iterator(_head_node());
     }
 
     iterator end() const {
-        return iterator(nullptr);
+        return iterator(m_sentinel);
     }
 
 
     // modifiers
 
     iterator erase(iterator pos) {
-        assert(pos.m_node_ptr);
-        if (pos.m_node_ptr->isHead()) {
-            m_head = pos.m_node_ptr->next;
-        }
-        if (pos.m_node_ptr->isTail()) {
-            m_tail = pos.m_node_ptr->prev;
-        }
+        assert(pos != end());
         detail::node * to_delete = pos.m_node_ptr;
         iterator to_return = ++pos;
         delete to_delete;
@@ -195,17 +185,7 @@ public:
     }
 
     iterator insert(iterator pos, int value) {
-        detail::node * current = nullptr;
-        if (!pos.m_node_ptr) {
-            //assume need to push something to the end
-            current = new detail::node(value, m_tail);
-            m_tail = current;
-        } else {
-            current = new detail::node(value, pos.m_node_ptr->prev, pos.m_node_ptr);
-        }
-        if (current->isHead()) {
-            m_head = current;
-        }
+        detail::node * current = new detail::node(value, pos.m_node_ptr->prev, pos.m_node_ptr);
         return iterator(current);
     }
 
@@ -218,24 +198,45 @@ public:
     }
 
     int pop_front() {
-        assert(m_head);
         int to_return = *begin();
         erase(begin());
         return to_return;
     }
 
     int pop_back() {
-        assert(m_tail);
-        int to_return = m_tail->data;
-        erase(iterator(m_tail));
+        int to_return = _tail_node()->data;
+        erase(iterator(_tail_node()));
         return to_return;
     }
 
     // operations
 
     void merge(doubly_linked_list& other) {
-        (void) other;
-        // assumes sorted list
+        // assumes sorted lists
+        iterator it_a = begin();
+        iterator it_b = other.begin();
+        while (it_a != end() && it_b != end()) {
+            assert(it_a.m_node_ptr != m_sentinel);
+            assert(it_b.m_node_ptr != other.m_sentinel);
+
+            if (*it_a > *it_b) {
+                assert(it_b.m_node_ptr == other._head_node());
+                it_b.m_node_ptr->unlink();
+                _insert_node(it_a, it_b.m_node_ptr);
+                it_b = other.begin();
+            } else {
+                ++it_a;
+            }
+        }
+
+        if (!other.empty()) {
+            // move rest of other into this
+            assert(it_a.m_node_ptr == _tail_node());
+            assert(it_b.m_node_ptr == _head_node());
+            _tail_node()->next = it_b.m_node_ptr;
+            _tail_node()->link();
+            m_sentinel->prev = (--(other.end())).m_node_ptr;
+        }
     }
 
     void remove(int value) {
@@ -248,8 +249,21 @@ public:
     void sort() { 
     }
 private:
-    detail::node * m_head;
-    detail::node * m_tail;
+    iterator _insert_node(iterator pos, detail::node* node) {
+        node->next = pos.m_node_ptr;
+        node->prev = pos.m_node_ptr->prev;
+        node->link();
+        return iterator(node);
+    }
+
+    detail::node * _head_node() const {
+        return m_sentinel->next;
+    }
+    detail::node * _tail_node() const {
+        return m_sentinel->prev;
+    }
+
+    detail::node * m_sentinel;
 };
 
 bool operator==(const doubly_linked_list& lhs, const doubly_linked_list& rhs) {
