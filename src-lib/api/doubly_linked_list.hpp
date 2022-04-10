@@ -26,6 +26,10 @@ struct node
         link();
     }
 
+    ~node() {
+        unlink();
+    }
+
     void link() {
         if (prev) {
             prev->next = this;
@@ -127,7 +131,9 @@ public:
     : doubly_linked_list(init.begin(), init.end())
     {}
 
-    ~doubly_linked_list() = default;
+    ~doubly_linked_list() {
+        clear();
+    }
 
     //  Element access
 
@@ -169,10 +175,23 @@ public:
     // modifiers
 
     iterator erase(iterator pos) {
-        return pos;
+        assert(pos.m_node_ptr);
+        if (pos.m_node_ptr->isHead()) {
+            m_head = pos.m_node_ptr->next;
+        }
+        if (pos.m_node_ptr->isTail()) {
+            m_tail = pos.m_node_ptr->prev;
+        }
+        detail::node * to_delete = pos.m_node_ptr;
+        iterator to_return = ++pos;
+        delete to_delete;
+        return to_return;
     }
 
     void clear() {
+        for (auto it = begin(); it != end();) {
+            it = erase(it);
+        }
     }
 
     iterator insert(iterator pos, int value) {
@@ -184,23 +203,32 @@ public:
         } else {
             current = new detail::node(value, pos.m_node_ptr->prev, pos.m_node_ptr);
         }
+        if (current->isHead()) {
+            m_head = current;
+        }
         return iterator(current);
     }
 
     void push_front(int value) {
-        (void) value;
+        insert(begin(), value);
     }
 
     void push_back(int value) {
-        (void) value;
+        insert(end(), value);
     }
 
     int pop_front() {
-        return 0;
+        assert(m_head);
+        int to_return = *begin();
+        erase(begin());
+        return to_return;
     }
 
     int pop_back() {
-        return 0;
+        assert(m_tail);
+        int to_return = m_tail->data;
+        erase(iterator(m_tail));
+        return to_return;
     }
 
     // operations
