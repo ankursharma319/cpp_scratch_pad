@@ -278,7 +278,8 @@ public:
         m_sentinel->next = old_prev;
     }
 
-    void sort() { 
+    void sort() {
+        merge_sort(*this);
     }
 
     void _debug_print() const {
@@ -322,6 +323,41 @@ public:
     }
 
 private:
+    void merge_sort(doubly_linked_list& d) {
+        if (d.size() == 0 || d.size() == 1) {
+            return;
+        }
+        doubly_linked_list right;
+        divide(d, right);
+        assert(d.size() - right.size() <= 1);
+        merge_sort(d);
+        merge_sort(right);
+        d.merge(right);
+    }
+
+    void divide(doubly_linked_list& d, doubly_linked_list& right) {
+        auto it1 = d.begin();
+        auto it2 = d.end();
+
+        while (it1 != it2) {
+            ++it1;
+            if (it1 == it2) {
+                break;
+            }
+            --it2;
+        }
+        auto * end_left = it1.m_node_ptr->prev;
+        auto * start_right = it1.m_node_ptr;
+        auto * end_right = d._tail_node();
+
+        d.m_sentinel->prev = end_left;
+        d.m_sentinel->link();
+
+        right.m_sentinel->prev = end_right;
+        right.m_sentinel->next = start_right;
+        right.m_sentinel->link();
+       }
+
     iterator _insert_node(iterator pos, detail::node* node) {
         node->next = pos.m_node_ptr;
         node->prev = pos.m_node_ptr->prev;

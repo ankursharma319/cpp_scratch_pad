@@ -132,7 +132,6 @@ TEST(DoublyLinkedListTest, test_std_algorithm_fill_and_iota) {
     EXPECT_EQ(ankur::doubly_linked_list({2, 3, 4, 5, 6}), my_list);
 }
 
-/*
 TEST(DoublyLinkedListTest, test_sort) {
     ankur::doubly_linked_list my_list {1, 3, 2, 5, 4, 1};
     my_list.sort();
@@ -155,4 +154,3 @@ TEST(DoublyLinkedListTest, test_sort_large) {
     my_list.sort();
     EXPECT_EQ(1, *my_list.begin());
 }
-*/
