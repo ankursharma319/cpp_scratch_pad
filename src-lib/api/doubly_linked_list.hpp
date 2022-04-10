@@ -52,6 +52,8 @@ struct node
         if (next != this) {
             next->prev = prev;
         }
+        prev = this;
+        next = this;
     }
 };
 
@@ -130,7 +132,9 @@ public:
     {}
 
     ~doubly_linked_list() {
+        //std::cout << "~doubly_linked_list :: size = " << size() << std::endl;
         clear();
+        delete m_sentinel;
     }
 
     //  Element access
@@ -179,7 +183,14 @@ public:
     }
 
     void clear() {
+        /*std::cout << "doubly_linked_list::clear :: clearing list of size "
+        << size() << " with m_sentinel " << m_sentinel << std::endl;
+        _debug_print();*/
         for (auto it = begin(); it != end();) {
+            /*std::cout <<  "Erasing " << it.m_node_ptr
+            << ", is_head = " << (_head_node() == it.m_node_ptr)
+            << ", is_tail = " << (_tail_node() == it.m_node_ptr)
+            << std::endl;*/
             it = erase(it);
         }
     }
@@ -215,7 +226,7 @@ public:
         // assumes sorted lists
         iterator it_a = begin();
         iterator it_b = other.begin();
-        while (it_a != end() && it_b != end()) {
+        while (it_a != end() && it_b != other.end()) {
             assert(it_a.m_node_ptr != m_sentinel);
             assert(it_b.m_node_ptr != other.m_sentinel);
 
@@ -231,11 +242,14 @@ public:
 
         if (!other.empty()) {
             // move rest of other into this
-            assert(it_a.m_node_ptr == _tail_node());
-            assert(it_b.m_node_ptr == _head_node());
-            _tail_node()->next = it_b.m_node_ptr;
-            _tail_node()->link();
-            m_sentinel->prev = (--(other.end())).m_node_ptr;
+            assert(it_b.m_node_ptr == other._head_node());
+            auto* other_head = other._head_node();
+            auto* other_tail = other._tail_node();
+            other.m_sentinel->unlink();
+            other_tail->next = m_sentinel;
+            other_head->prev = m_sentinel->prev;
+            m_sentinel->prev->next = other_head;
+            m_sentinel->prev = other_tail;
         }
     }
 
@@ -261,6 +275,46 @@ private:
     }
     detail::node * _tail_node() const {
         return m_sentinel->prev;
+    }
+
+    void _debug_print() const {
+        //std::cout << "debug printing doubly linked list of size = " << size() << std::endl;
+        std::cout << "--------------------" << std::endl;
+        std::cout << "|                  |" << std::endl;
+        std::cout << "|  val = sentinel  |" << std::endl;
+        std::cout << "| addr = " << m_sentinel << " |" << std::endl;
+        std::cout << "| prev = " << m_sentinel->prev << " |" << std::endl;
+        std::cout << "| next = " << m_sentinel->next << " |" << std::endl;
+        std::cout << "|                  |" << std::endl;
+        std::cout << "--------------------" << std::endl;
+        std::cout << "         ^          " << std::endl;
+        std::cout << "         |          " << std::endl;
+        std::cout << "         |          " << std::endl;
+        std::cout << "         v          " << std::endl;
+        for (auto it = begin(); it != end(); ++it) {
+            std::cout << "--------------------" << std::endl;
+            std::cout << "|                  |" << std::endl;
+            std::cout << "|     val = " << *it << "      |" << std::endl;
+            std::cout << "| addr = " << it.m_node_ptr << " |" << std::endl;
+            std::cout << "| prev = " << it.m_node_ptr->prev << " |" << std::endl;
+            std::cout << "| next = " << it.m_node_ptr->next << " |" << std::endl;
+            std::cout << "|                  |" << std::endl;
+            std::cout << "--------------------" << std::endl;
+            std::cout << "         ^          " << std::endl;
+            std::cout << "         |          " << std::endl;
+            std::cout << "         |          " << std::endl;
+            std::cout << "         v          " << std::endl;
+        }
+        std::cout << "--------------------" << std::endl;
+        std::cout << "|                  |" << std::endl;
+        std::cout << "|  val = sentinel  |" << std::endl;
+        std::cout << "| addr = " << m_sentinel << " |" << std::endl;
+        std::cout << "| prev = " << m_sentinel->prev << " |" << std::endl;
+        std::cout << "| next = " << m_sentinel->next << " |" << std::endl;
+        std::cout << "|                  |" << std::endl;
+        std::cout << "--------------------" << std::endl;
+        std::cout << "" << std::endl;
+        std::cout << "DONE debug printing" << std::endl;
     }
 
     detail::node * m_sentinel;

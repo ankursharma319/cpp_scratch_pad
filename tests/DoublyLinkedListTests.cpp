@@ -96,16 +96,17 @@ TEST(DoublyLinkedListTest, test_erase) {
 
 TEST(DoublyLinkedListTest, test_merge) {
     ankur::doubly_linked_list my_list {2, 4, 6, 7};
-    my_list.merge(my_list);
-    EXPECT_EQ(4, my_list.size());
+    ASSERT_EQ(4, my_list.size());
     ankur::doubly_linked_list tmp_list_1 {1, 5, 6};
     my_list.merge(tmp_list_1);
+    ASSERT_EQ(0, tmp_list_1.size());
+    ASSERT_EQ(7, my_list.size());
     ankur::doubly_linked_list tmp_list_2 {9, 9};
     my_list.merge(tmp_list_2);
-    EXPECT_EQ(0, tmp_list_1.size());
-    EXPECT_EQ(0, tmp_list_2.size());
+    ASSERT_EQ(0, tmp_list_2.size());
+    ASSERT_EQ(9, my_list.size());
 
-    EXPECT_EQ(ankur::doubly_linked_list({1, 2, 4, 5, 6, 6, 7, 9, 9}), my_list);
+    ASSERT_EQ(ankur::doubly_linked_list({1, 2, 4, 5, 6, 6, 7, 9, 9}), my_list);
 }
 
 /*
