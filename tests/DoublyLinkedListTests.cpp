@@ -109,7 +109,6 @@ TEST(DoublyLinkedListTest, test_merge) {
     ASSERT_EQ(ankur::doubly_linked_list({1, 2, 4, 5, 6, 6, 7, 9, 9}), my_list);
 }
 
-/*
 TEST(DoublyLinkedListTest, test_remove) {
     ankur::doubly_linked_list my_list {1, 2, 3, 2, 1};
     my_list.remove(2);
@@ -122,16 +121,6 @@ TEST(DoublyLinkedListTest, test_reverse) {
     EXPECT_EQ(ankur::doubly_linked_list({3, 2, 1}), my_list);
 }
 
-TEST(DoublyLinkedListTest, test_sort) {
-    ankur::doubly_linked_list my_list {1, 3, 2, 5, 4, 1};
-    my_list.sort();
-    EXPECT_EQ(ankur::doubly_linked_list({1, 1, 2, 3, 4, 5}), my_list);
-
-    ankur::doubly_linked_list my_list_2 {1, 3, 2};
-    my_list_2.sort();
-    EXPECT_EQ(ankur::doubly_linked_list({1, 2, 3}), my_list_2);
-}
-
 TEST(DoublyLinkedListTest, test_std_algorithm_fill_and_iota) {
     ankur::doubly_linked_list my_list(5);
     EXPECT_EQ(5, my_list.size());
@@ -141,6 +130,17 @@ TEST(DoublyLinkedListTest, test_std_algorithm_fill_and_iota) {
 
     std::iota (std::begin(my_list), std::end(my_list), 2);
     EXPECT_EQ(ankur::doubly_linked_list({2, 3, 4, 5, 6}), my_list);
+}
+
+/*
+TEST(DoublyLinkedListTest, test_sort) {
+    ankur::doubly_linked_list my_list {1, 3, 2, 5, 4, 1};
+    my_list.sort();
+    EXPECT_EQ(ankur::doubly_linked_list({1, 1, 2, 3, 4, 5}), my_list);
+
+    ankur::doubly_linked_list my_list_2 {1, 3, 2};
+    my_list_2.sort();
+    EXPECT_EQ(ankur::doubly_linked_list({1, 2, 3}), my_list_2);
 }
 
 TEST(DoublyLinkedListTest, test_sort_large) {

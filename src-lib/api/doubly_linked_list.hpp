@@ -254,27 +254,31 @@ public:
     }
 
     void remove(int value) {
-        (void) value;
+        for (auto it = begin(); it != end();) {
+            if (value == *it) {
+                it = erase(it);
+            } else {
+                ++it;
+            }
+        }
     }
 
     void reverse() {
+        auto * current_node = _head_node();
+
+        while(current_node != m_sentinel) {
+            auto * old_prev = current_node->prev;
+            current_node->prev = current_node->next;
+            current_node->next = old_prev;
+            current_node = current_node->prev;
+        }
+
+        auto * old_prev = m_sentinel->prev;
+        m_sentinel->prev = m_sentinel->next;
+        m_sentinel->next = old_prev;
     }
 
     void sort() { 
-    }
-private:
-    iterator _insert_node(iterator pos, detail::node* node) {
-        node->next = pos.m_node_ptr;
-        node->prev = pos.m_node_ptr->prev;
-        node->link();
-        return iterator(node);
-    }
-
-    detail::node * _head_node() const {
-        return m_sentinel->next;
-    }
-    detail::node * _tail_node() const {
-        return m_sentinel->prev;
     }
 
     void _debug_print() const {
@@ -315,6 +319,21 @@ private:
         std::cout << "--------------------" << std::endl;
         std::cout << "" << std::endl;
         std::cout << "DONE debug printing" << std::endl;
+    }
+
+private:
+    iterator _insert_node(iterator pos, detail::node* node) {
+        node->next = pos.m_node_ptr;
+        node->prev = pos.m_node_ptr->prev;
+        node->link();
+        return iterator(node);
+    }
+
+    detail::node * _head_node() const {
+        return m_sentinel->next;
+    }
+    detail::node * _tail_node() const {
+        return m_sentinel->prev;
     }
 
     detail::node * m_sentinel;
