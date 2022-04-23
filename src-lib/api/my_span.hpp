@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <array>
 
+// TODO - https://codereview.stackexchange.com/questions/217814/c17-span-implementation
+
 template<typename T>
 class my_span {
 public:

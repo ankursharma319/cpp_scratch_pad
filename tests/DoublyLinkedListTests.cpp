@@ -143,7 +143,7 @@ TEST(DoublyLinkedListTest, test_sort) {
 }
 
 TEST(DoublyLinkedListTest, test_sort_large) {
-    std::size_t my_size = 1000000;
+    std::size_t my_size = LARGE_N;
     ankur::doubly_linked_list my_list(my_size);
     std::iota (std::begin(my_list), std::end(my_list), 1);
     EXPECT_EQ(1, *my_list.begin());
