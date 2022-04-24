@@ -102,7 +102,7 @@ public:
         }
     }
 
-    std::string to_string() {
+    std::string to_string() const {
         if (!m_head) return "";
         std::stringstream ss {};
         m_head->fill_string(ss, "", "");
