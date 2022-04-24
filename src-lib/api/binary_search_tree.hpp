@@ -144,12 +144,15 @@ private:
 
     bst_detail::node* delete_node(bst_detail::node * node) {
         if (!node->left_child && !node->right_child) {
-            if (node->parent->left_child == node) {
+            if (node->parent && node->parent->left_child == node) {
                 node->parent->left_child = nullptr;
-            } else if(node->parent->right_child == node) {
+            } else if(node->parent && node->parent->right_child == node) {
                 node->parent->right_child = nullptr;
             }
             node->detach();
+            if (m_head == node) {
+                m_head = nullptr;
+            }
             delete node;
             m_size--;
             return nullptr;
@@ -158,12 +161,15 @@ private:
             if (!replacement_node) {
                 replacement_node = node->right_child;
             }
-            if (node->parent->left_child == node) {
+            if (node->parent && node->parent->left_child == node) {
                 node->parent->left_child = replacement_node;
-            } else if(node->parent->right_child == node) {
+            } else if(node->parent && node->parent->right_child == node) {
                 node->parent->right_child = replacement_node;
             }
             replacement_node->parent = node->parent;
+            if (m_head == node) {
+                m_head = replacement_node;
+            }
             node->detach();
             delete node;
             m_size--;

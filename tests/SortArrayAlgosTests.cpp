@@ -30,3 +30,12 @@ TEST(SortArrayAlgosTest, test_heap_sort) {
         EXPECT_EQ(x+1, arr[x]);
     }
 }
+
+TEST(SortArrayAlgosTest, test_bst_sort) {
+    int arr[5] = {5, 4, 3, 2, 1};
+    ankur::bst_sort(arr);
+
+    for (int x = 0; x < 5; x++) {
+        EXPECT_EQ(x+1, arr[x]);
+    }
+}

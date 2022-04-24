@@ -2,6 +2,7 @@
 #include <iostream>
 #include <limits>
 #include <cassert>
+#include "binary_search_tree.hpp"
 
 namespace ankur {
 
@@ -13,6 +14,9 @@ void selection_sort(T (&arr)[N]);
 
 template<typename T, std::size_t N>
 void heap_sort(T (&arr)[N]);
+
+template<typename T, std::size_t N>
+void bst_sort(T (&arr)[N]);
 
 template<typename T, std::size_t N>
 void insertion_sort(T (&arr)[N]) {
@@ -89,6 +93,18 @@ void heap_sort(T (&arr)[N]) {
     for (std::size_t i=N-1; i!=0; i--) {
         std::swap(arr[0], arr[i]);
         max_heapify_down_arr(arr, i, 0);
+    }
+}
+
+template<typename T, std::size_t N>
+void bst_sort(T (&arr)[N]) {
+    binary_search_tree my_bst {};
+    for (std::size_t i=0; i<N; i++) {
+        my_bst.insert(arr[i]);
+    }
+    for (std::size_t i=0; i<N; i++) {
+        arr[i] = my_bst.find_min();
+        my_bst.remove(arr[i]);
     }
 }
 
