@@ -2,7 +2,7 @@ enable_testing()
 
 add_executable(CppScratchPadTests 
     LinkedListTests.cpp DoublyLinkedListTests.cpp StdContainerTests.cpp
-    SortArrayAlgosTests.cpp HeapTests.cpp
+    SortArrayAlgosTests.cpp HeapTests.cpp BSTTests.cpp
 )
 
 target_link_libraries(CppScratchPadTests gtest_main)
