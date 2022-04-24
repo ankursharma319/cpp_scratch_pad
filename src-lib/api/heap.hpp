@@ -1,8 +1,10 @@
+#include "linked_list.hpp"
 #include <cassert>
 #include <cstddef>
 #include <vector>
 #include <limits>
-
+#include <string>
+#include <iostream>
 namespace ankur {
 
 class max_heap {
@@ -10,12 +12,36 @@ public:
     std::vector<int> vec {};
 
     max_heap() {}
-    void insert(int x);
-    int max() const;
-    int extract_max();
-    void change_key(std::size_t index, int new_value);
 
-    void max_heapify(std::size_t index) {
+    void insert(int x) {
+        vec.push_back(x);
+        max_heapify_up(vec.size()-1);
+    }
+
+    int max() const {
+        return vec.at(0);
+    }
+
+    int extract_max() {
+        int ret = vec.at(0);
+        std::swap(vec.at(0), vec.at(vec.size()-1));
+        vec.pop_back();
+        max_heapify_down(0);
+        return ret;
+    }
+
+    void change_key(std::size_t index, int new_value) {
+        assert(index < vec.size());
+        int old_value = vec.at(index);
+        vec.at(index) = new_value;
+        if (new_value > old_value) {
+            max_heapify_up(index);
+        } else {
+            max_heapify_down(index);
+        }
+    }
+
+    void max_heapify_down(std::size_t index) {
         assert(index < vec.size());
         // assume trees on the left and right are max heaps
         std::size_t left_child_index = index * 2 + 1;
@@ -32,11 +58,26 @@ public:
         ) {
             if (has_right_subtree && left_child_value < vec.at(right_child_index)) {
                 std::swap(vec.at(index), vec.at(right_child_index));
-                max_heapify(right_child_index);
+                max_heapify_down(right_child_index);
             } else {
                 std::swap(vec.at(index), vec.at(left_child_index));
-                max_heapify(left_child_index);
+                max_heapify_down(left_child_index);
             }
+        }
+    }
+
+    void max_heapify_up(std::size_t index) {
+        // assume everything above is heap
+        std::size_t parent_index = index < 1 ? 0 : (index - 1) / 2;
+        while(index != 0) {
+            assert(index < vec.size());
+            if (vec.at(index) > vec.at(parent_index)) {
+                std::swap(vec.at(parent_index), vec.at(index));
+            } else {
+                break;
+            }
+            index = parent_index;
+            parent_index = parent_index < 1 ? 0 : (parent_index - 1) / 2;
         }
     }
 
@@ -46,7 +87,7 @@ public:
             i < std::numeric_limits<std::size_t>::max();
             i--
         ) {
-            max_heapify(i);
+            max_heapify_down(i);
         }
     }
 
