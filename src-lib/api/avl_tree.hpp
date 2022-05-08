@@ -13,8 +13,8 @@ struct node {
     node* parent;
     node* left_child;
     node* right_child;
-    int height;
-    int heaviness; //difference in height (left-right) subtree
+    int left_height;
+    int right_height;
 
     node(
         int _value=0,
@@ -25,17 +25,27 @@ struct node {
     , parent(_parent)
     , left_child(_left_child)
     , right_child(_right_child)
-    , height(0)
-    , heaviness(0)
+    , left_height(-1)
+    , right_height(-1)
     {
-        int left_height = left_child ? left_child->height : -1;
-        int right_height = right_child ? right_child->height : -1;
-        height = 1 + std::max(left_height, right_height);
-        heaviness = left_height - right_height;
+        update_heights();
+    }
+
+    int height() const {
+        return 1 + std::max(left_height, right_height);
+    }
+
+    int heaviness() const {
+        return right_height - left_height;
+    }
+
+    void update_heights() {
+        left_height = left_child ? left_child->height() : -1;
+        right_height = right_child ? right_child->height() : -1;
     }
 
     void fill_string(std::stringstream & ss, std::string prefix, std::string children_prefix) const {
-        ss << prefix << "(s=" << heaviness << ",h=" << height << ")" << value << std::endl;
+        ss << prefix << value << "(s=" << heaviness() << ",h=" << height() << ")" << std::endl;
         if (left_child) {
             left_child->fill_string(ss, children_prefix + "|--", children_prefix + "|  ");
         }
@@ -64,6 +74,13 @@ struct node {
     }
 };
 
+int node_height(node * n) {
+    if(!n) {
+        return -1;
+    }
+    return n->height();
+}
+
 }
 
 class avl_tree {
@@ -86,7 +103,7 @@ public:
         if (!inserted_node) {
             return;
         }
-        fixAvlProperty();
+        fix_avl_property();
     }
     std::string to_string() const {
         if (!m_head) return "";
@@ -113,7 +130,8 @@ private:
                 } else {
                     node->left_child = new avl_detail::node(value, node, nullptr, nullptr);
                     m_size ++;
-                    return node->left_child;
+                    node = node->left_child;
+                    break;
                 }
             } else {
                 if (node->right_child) {
@@ -121,14 +139,22 @@ private:
                 } else {
                     node->right_child = new avl_detail::node(value, node, nullptr, nullptr);
                     m_size++;
-                    return node->right_child;
+                    node = node->right_child;
+                    break;
                 }
             }
         }
-        return nullptr;
+
+        avl_detail::node * inserted_node = node;
+        //update heights
+        while (node) {
+            node->update_heights();
+            node = node->parent;
+        }
+        return inserted_node;
     }
 
-    void fixAvlProperty() {
+    void fix_avl_property() {
 
     }
 

@@ -6,7 +6,7 @@
 #include <numeric>
 #include <vector>
 
-TEST(AVLTest, test_size_insert_and_print) {
+TEST(AVLTest, test_simple_insert_and_print) {
     ankur::avl_tree my_tree {};
     EXPECT_EQ(my_tree.size(), 0);
     my_tree.insert(9);
@@ -19,6 +19,8 @@ TEST(AVLTest, test_size_insert_and_print) {
     my_tree.insert(2);
     my_tree.insert(4);
     EXPECT_EQ(9, my_tree.size());
+    // h is height of node
+    // s is height sidedness where left is negative and right is positive
     std::string expected_string_repr =
         "9(s=-1,h=3)\n"
         "|--5(s=0,h=2)\n"
