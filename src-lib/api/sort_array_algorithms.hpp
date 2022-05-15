@@ -3,6 +3,7 @@
 #include <limits>
 #include <cassert>
 #include "binary_search_tree.hpp"
+#include "avl_tree.hpp"
 #include "my_span.hpp"
 
 namespace ankur {
@@ -170,6 +171,18 @@ void bst_sort(my_span<T> span) {
     for (std::size_t i=0; i<span.size(); i++) {
         span[i] = my_bst.find_min();
         my_bst.remove(span[i]);
+    }
+}
+
+template<typename T>
+void avl_sort(my_span<T> span) {
+    avl_tree tree {};
+    for (std::size_t i=0; i<span.size(); i++) {
+        tree.insert(span[i]);
+    }
+    for (std::size_t i=0; i<span.size(); i++) {
+        span[i] = tree.find_min();
+        tree.remove(span[i]);
     }
 }
 

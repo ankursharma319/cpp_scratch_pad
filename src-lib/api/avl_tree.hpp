@@ -74,83 +74,9 @@ struct node {
     }
 };
 
-void left_rotate(node* x) {
-    assert(x);
-    node * y = x->right_child;
-    assert(y != nullptr);
-    node * b = y->left_child;
-
-    y->parent = x->parent;
-    if (x->parent && x->parent->value > x->value) {
-        assert(x->parent->left_child);
-        x->parent->left_child = y;
-    } else if(x->parent && x->parent->value < x->value) {
-        assert(x->parent->right_child);
-        x->parent->right_child = y;
-    }
-    x->parent = y;
-    y->left_child = x;
-    x->right_child = b;
-    if (b) {
-        b->parent = x;
-    }
-    x->update_heights();
-    y->update_heights();
-}
-
-void right_rotate(node* x) {
-    assert(x);
-    node * y = x->left_child;
-    assert(y != nullptr);
-    node * b = y->right_child;
-
-    y->parent = x->parent;
-    if (x->parent && x->parent->value > x->value) {
-        assert(x->parent->left_child);
-        x->parent->left_child = y;
-    } else if(x->parent && x->parent->value < x->value) {
-        assert(x->parent->right_child);
-        x->parent->right_child = y;
-    }
-    x->parent = y;
-    y->right_child = x;
-    x->left_child = b;
-    if (b) {
-        b->parent = x;
-    }
-    x->update_heights();
-    y->update_heights();
-}
-
-void _do_fix_avl_property(avl_detail::node* node) {
-    if (node->heaviness() > 1) {
-        if (node->right_child->heaviness() >= 0) {
-            left_rotate(node);
-        } else {
-            right_rotate(node->right_child);
-            left_rotate(node);
-        }
-    } else if (node->heaviness() < -1) {
-        if (node->left_child->heaviness() <= 0) {
-            right_rotate(node);
-        } else {
-            left_rotate(node->left_child);
-            right_rotate(node);
-        }
-    }
-    node->update_heights();
-}
-
-node * fix_avl_property(avl_detail::node* new_node) {
-    avl_detail::node * node = new_node;
-    while (true) {
-        _do_fix_avl_property(node);
-        if (!node->parent) {
-            return node;
-        }
-        node = node->parent;
-    }
-}
+void left_rotate(node* x);
+void right_rotate(node* x);
+node * fix_avl_property(avl_detail::node* new_node);
 
 }
 
@@ -182,6 +108,16 @@ public:
         m_head->fill_string(ss, "", "");
         return ss.str();
     }
+
+    int find_min() const {
+        return find_min_node(m_head)->value;
+    }
+
+    void remove(int value) {
+        avl_detail::node* affected_node = remove_node_with_value(m_head, value);
+        m_head = fix_avl_property(affected_node);
+    }
+
 private:
     avl_detail::node* bst_insert(int value) {
         if (!m_head) {
@@ -216,13 +152,83 @@ private:
             }
         }
 
+        // update heights
+        // this is done anyway when we iterate up the tree to confirm
+        // avl_property is maintained, so no need to do here
         avl_detail::node * inserted_node = node;
-        //update heights
-        while (node) {
+        /*while (node) {
             node->update_heights();
             node = node->parent;
-        }
+        }*/
         return inserted_node;
+    }
+
+    avl_detail::node* find_min_node(avl_detail::node* root) const {
+        assert(root);
+        while (root->left_child) {
+            root = root->left_child;
+        }
+        return root;
+    }
+
+    avl_detail::node* delete_node(avl_detail::node * node) {
+        if (!node->left_child && !node->right_child) {
+            if (node->parent && node->parent->left_child == node) {
+                node->parent->left_child = nullptr;
+            } else if(node->parent && node->parent->right_child == node) {
+                node->parent->right_child = nullptr;
+            }
+            avl_detail::node* parent_node = node->parent;
+            if (node->parent) {
+                node->parent->update_heights();
+            }
+            node->detach();
+            if (m_head == node) {
+                m_head = nullptr;
+            }
+            delete node;
+            m_size--;
+            return parent_node;
+        } else if(!node->left_child || !node->right_child) {
+            avl_detail::node* replacement_node = node->left_child;
+            if (!replacement_node) {
+                replacement_node = node->right_child;
+            }
+            if (node->parent && node->parent->left_child == node) {
+                node->parent->left_child = replacement_node;
+            } else if(node->parent && node->parent->right_child == node) {
+                node->parent->right_child = replacement_node;
+            }
+            replacement_node->parent = node->parent;
+            if (m_head == node) {
+                m_head = replacement_node;
+            }
+            if (node->parent) {
+                node->parent->update_heights();
+            }
+            node->detach();
+            delete node;
+            m_size--;
+            return replacement_node;
+        } else {
+            // 2 children
+            avl_detail::node* replacement_node = find_min_node(node->right_child);
+            node->value = replacement_node->value;
+            return remove_node_with_value(node->right_child, replacement_node->value);
+        }
+    }
+
+    avl_detail::node* remove_node_with_value(avl_detail::node* root, int value) {
+        if(!root) {
+            return nullptr;
+        } else if (root->value > value) {
+            return remove_node_with_value(root->left_child, value);
+        } else if (root->value < value) {
+            return remove_node_with_value(root->right_child, value);
+        } else {
+            //found the node to be deleted
+            return delete_node(root);
+        }
     }
 
     avl_detail::node * m_head;

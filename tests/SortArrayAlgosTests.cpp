@@ -68,6 +68,15 @@ TEST(SortArrayAlgosTest, test_bst_sort) {
     }
 }
 
+TEST(SortArrayAlgosTest, test_avl_sort) {
+    int arr[5] = {5, 4, 3, 2, 1};
+    ankur::avl_sort(my_span<int>(arr));
+
+    for (int x = 0; x < 5; x++) {
+        EXPECT_EQ(x+1, arr[x]);
+    }
+}
+
 TEST_F(SortLargeArrayAlgosTestFixture, test_selection_sort_large_input) {
     ankur::selection_sort(span);
     EXPECT_EQ(LARGE_N, *(span.end()-1));
@@ -100,6 +109,12 @@ TEST_F(SortLargeArrayAlgosTestFixture, test_std_sort_large_input) {
 
 TEST_F(SortLargeArrayAlgosTestFixture, test_merge_sort_large_input) {
     ankur::merge_sort(span);
+    EXPECT_EQ(LARGE_N, *(span.end()-1));
+    EXPECT_EQ(1, *span.begin());
+}
+
+TEST_F(SortLargeArrayAlgosTestFixture, test_avl_sort_large_input) {
+    ankur::avl_sort(span);
     EXPECT_EQ(LARGE_N, *(span.end()-1));
     EXPECT_EQ(1, *span.begin());
 }
