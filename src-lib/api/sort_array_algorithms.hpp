@@ -3,59 +3,60 @@
 #include <limits>
 #include <cassert>
 #include "binary_search_tree.hpp"
+#include "my_span.hpp"
 
 namespace ankur {
 
-template<typename T, std::size_t N>
-void insertion_sort(T (&arr)[N]);
+template<typename T>
+void insertion_sort(my_span<T> span);
 
-template<typename T, std::size_t N>
-void selection_sort(T (&arr)[N]);
+template<typename T>
+void selection_sort(my_span<T> span);
 
-template<typename T, std::size_t N>
-void heap_sort(T (&arr)[N]);
+template<typename T>
+void heap_sort(my_span<T> span);
 
-template<typename T, std::size_t N>
-void bst_sort(T (&arr)[N]);
+template<typename T>
+void bst_sort(my_span<T> span);
 
-template<typename T, std::size_t N>
-void insertion_sort(T (&arr)[N]) {
-    for (std::size_t i=1; i<N; i++) {
+template<typename T>
+void insertion_sort(my_span<T> span) {
+    for (std::size_t i=1; i<span.size(); i++) {
         for (
             std::size_t j = i;
-            j > 0 && arr[j] < arr[j-1];
+            j > 0 && span[j] < span[j-1];
             j--
         ) {
-            std::swap(arr[j], arr[j-1]);
+            std::swap(span[j], span[j-1]);
         }
     }
 }
 
-template<typename T, std::size_t N>
-void selection_sort(T (&arr)[N]) {
-    for (std::size_t i=0; i<N; i++) {
+template<typename T>
+void selection_sort(my_span<T> span) {
+    for (std::size_t i=0; i<span.size(); i++) {
         std::size_t smallest_index = i;
-        for (std::size_t j=i; j<N; j++) {
-            if (arr[j] < arr[smallest_index]) {
+        for (std::size_t j=i; j<span.size(); j++) {
+            if (span[j] < span[smallest_index]) {
                 smallest_index = j;
             }
         }
         if (smallest_index != i) {
-            std::swap(arr[i], arr[smallest_index]);
+            std::swap(span[i], span[smallest_index]);
         }
     }
 }
 
-template<typename T, std::size_t N>
-void print_array(T (&arr)[N]) {
-    for (std::size_t i=0; i<N;i++) {
-        std::cout << arr[i] << ", ";
+template<typename T>
+void print_span(my_span<T> span) {
+    for (std::size_t i=0; i<span.size();i++) {
+        std::cout << span[i] << ", ";
     }
     std::cout << std::endl;
 }
 
 template<typename T>
-void max_heapify_down_arr(T* arr, std::size_t N, std::size_t index) {
+void max_heapify_down_arr(my_span<T> arr, std::size_t N, std::size_t index) {
     assert(index < N);
     // assume trees on the left and right are max heaps
     std::size_t left_child_index = index * 2 + 1;
@@ -80,31 +81,31 @@ void max_heapify_down_arr(T* arr, std::size_t N, std::size_t index) {
     }
 }
 
-template<typename T, std::size_t N>
-void heap_sort(T (&arr)[N]) {
+template<typename T>
+void heap_sort(my_span<T> span) {
     for (
-        std::size_t i = (N/2)-1;
+        std::size_t i = (span.size()/2)-1;
         i < std::numeric_limits<std::size_t>::max();
         i--
     ) {
-        max_heapify_down_arr(arr, N, i);
+        max_heapify_down_arr(span, span.size(), i);
     }
 
-    for (std::size_t i=N-1; i!=0; i--) {
-        std::swap(arr[0], arr[i]);
-        max_heapify_down_arr(arr, i, 0);
+    for (std::size_t i=span.size()-1; i!=0; i--) {
+        std::swap(span[0], span[i]);
+        max_heapify_down_arr(span, i, 0);
     }
 }
 
-template<typename T, std::size_t N>
-void bst_sort(T (&arr)[N]) {
+template<typename T>
+void bst_sort(my_span<T> span) {
     binary_search_tree my_bst {};
-    for (std::size_t i=0; i<N; i++) {
-        my_bst.insert(arr[i]);
+    for (std::size_t i=0; i<span.size(); i++) {
+        my_bst.insert(span[i]);
     }
-    for (std::size_t i=0; i<N; i++) {
-        arr[i] = my_bst.find_min();
-        my_bst.remove(arr[i]);
+    for (std::size_t i=0; i<span.size(); i++) {
+        span[i] = my_bst.find_min();
+        my_bst.remove(span[i]);
     }
 }
 

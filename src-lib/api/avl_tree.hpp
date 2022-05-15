@@ -74,13 +74,6 @@ struct node {
     }
 };
 
-int node_height(node * n) {
-    if(!n) {
-        return -1;
-    }
-    return n->height();
-}
-
 void left_rotate(node* x) {
     assert(x);
     node * y = x->right_child;
