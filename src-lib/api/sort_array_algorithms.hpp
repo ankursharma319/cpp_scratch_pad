@@ -14,6 +14,9 @@ template<typename T>
 void selection_sort(my_span<T> span);
 
 template<typename T>
+void merge_sort(my_span<T> span);
+
+template<typename T>
 void heap_sort(my_span<T> span);
 
 template<typename T>
@@ -45,6 +48,67 @@ void selection_sort(my_span<T> span) {
             std::swap(span[i], span[smallest_index]);
         }
     }
+}
+
+template<typename T>
+void merge_sorted_spans(my_span<T>& span, std::size_t start, std::size_t mid, std::size_t end) {
+    assert(start < end);
+    assert(start <= mid);
+    assert(mid <= end);
+    assert(span.size() > end - start);
+    assert(mid-start <= end-start);
+
+    // populate copy of arrays
+    std::size_t const left_size = mid - start + 1;
+    std::size_t const right_size = end - mid;
+    T* left = new T[left_size];
+    T* right = new T[right_size];
+    std::size_t left_index = 0;
+    std::size_t right_index = 0;
+    std::size_t span_index = start;
+    for (; span_index <= mid; span_index++, left_index++) {
+        assert(left_index < left_size);
+        left[left_index] = span[span_index];
+    }
+    for (; span_index <= end; span_index++, right_index++) {
+        assert(right_index < right_size);
+        right[right_index] = span[span_index];
+    }
+    assert(left_index == left_size);
+    assert(right_index == right_size);
+    assert(span_index == end + 1);
+    span_index = start;
+    left_index = 0;
+    right_index = 0;
+    while(span_index <= end) {
+        if (right_index >= right_size || left[left_index] <= right[right_index]) {
+            span[span_index] = left[left_index];
+            left_index++;
+        } else {
+            span[span_index] = right[right_index];
+            right_index++;
+        }
+        span_index++;
+    }
+    delete[] left;
+    delete[] right;
+}
+
+template<typename T>
+void do_merge_sort(my_span<T>& span, std::size_t start, std::size_t end) {
+    assert(span.size() > end - start);
+    if (end - start < 1) {
+        return;
+    }
+    std::size_t midpoint = start + (end - start) / 2;
+    do_merge_sort(span, start, midpoint);
+    do_merge_sort(span, midpoint + 1, end);
+    merge_sorted_spans(span, start, midpoint, end);
+}
+
+template<typename T>
+void merge_sort(my_span<T> span) {
+    return do_merge_sort(span, std::size_t(0), span.size()-1);
 }
 
 template<typename T>

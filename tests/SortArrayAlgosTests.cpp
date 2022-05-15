@@ -41,6 +41,15 @@ TEST(SortArrayAlgosTest, test_insertion_sort) {
     }
 }
 
+TEST(SortArrayAlgosTest, test_merge_sort) {
+    int arr[5] = {5, 4, 3, 2, 1};
+    ankur::merge_sort(my_span<int>(arr));
+
+    for (int x = 0; x < 5; x++) {
+        EXPECT_EQ(x+1, arr[x]);
+    }
+}
+
 TEST(SortArrayAlgosTest, test_heap_sort) {
     int arr[5] = {5, 4, 3, 2, 1};
     ankur::heap_sort(my_span<int>(arr));
@@ -85,6 +94,12 @@ TEST_F(SortLargeArrayAlgosTestFixture, test_bst_sort_large_input) {
 
 TEST_F(SortLargeArrayAlgosTestFixture, test_std_sort_large_input) {
     std::sort(span.begin(), span.end());
+    EXPECT_EQ(LARGE_N, *(span.end()-1));
+    EXPECT_EQ(1, *span.begin());
+}
+
+TEST_F(SortLargeArrayAlgosTestFixture, test_merge_sort_large_input) {
+    ankur::merge_sort(span);
     EXPECT_EQ(LARGE_N, *(span.end()-1));
     EXPECT_EQ(1, *span.begin());
 }
