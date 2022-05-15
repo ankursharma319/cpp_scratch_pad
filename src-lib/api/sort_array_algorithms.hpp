@@ -2,6 +2,7 @@
 #include <iostream>
 #include <limits>
 #include <cassert>
+#include <cmath>
 #include "binary_search_tree.hpp"
 #include "avl_tree.hpp"
 #include "my_span.hpp"
@@ -22,6 +23,9 @@ void heap_sort(my_span<T> span);
 
 template<typename T>
 void bst_sort(my_span<T> span);
+
+template<typename T>
+void counting_sort_v1(my_span<T> span);
 
 template<typename T>
 void insertion_sort(my_span<T> span) {
@@ -184,6 +188,31 @@ void avl_sort(my_span<T> span) {
         span[i] = tree.find_min();
         tree.remove(span[i]);
     }
+}
+
+template<typename T>
+void counting_sort_v1(my_span<T> span) {
+    std::size_t counts_size = (std::size_t) pow(2, sizeof(T)*8);
+    std::size_t* counts = new std::size_t[counts_size]{ 0 };
+    // we assume that T starts on 0
+    // if not, we need a separate mapping function from a value T t
+    // to index in counts. Probably something that just offsets.
+    // for something like floats, would need to come up with a more
+    // complex mapping function
+    for (auto it = span.begin(); it != span.end(); it++) {
+        counts[*it]++;
+    }
+    std::size_t n_inserted = 0;
+    for (std::size_t i=0; i < counts_size; i++) {
+        if (counts[i] == 0) {
+            continue;
+        }
+        for (std::size_t j=0; j<counts[i]; j++) {
+            span[n_inserted] = i;
+            n_inserted ++;
+        }
+    }
+    delete[] counts;
 }
 
 }
