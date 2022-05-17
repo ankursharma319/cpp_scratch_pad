@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <cassert>
@@ -30,6 +31,15 @@ void bst_sort(my_span<T> span);
 
 template<typename T>
 void counting_sort_v1(my_span<T> span);
+
+template<typename T>
+void counting_sort_v2(my_span<T> span, std::size_t digit_number, std::size_t base);
+
+template<typename T>
+void radix_sort(my_span<T> span, std::size_t base=10);
+
+template<typename T>
+void quick_sort(my_span<T> span);
 
 template<typename T>
 void insertion_sort(my_span<T> span) {
@@ -264,7 +274,7 @@ void counting_sort_v2(my_span<T> span, std::size_t digit_number, std::size_t bas
 }
 
 template<typename T>
-void radix_sort(my_span<T> span, std::size_t base = 16) {
+void radix_sort(my_span<T> span, std::size_t base) {
     auto [min_it, max_it] = std::minmax_element(span.begin(), span.end());
     assert(min_it != span.end());
     assert(max_it != span.end());
@@ -298,6 +308,49 @@ void radix_sort(my_span<T> span, std::size_t base = 16) {
         }
         assert(i == span.size());
     }
+}
+
+template<typename T>
+std::size_t quicksort_partition_lomuto(my_span<T>& span, std::size_t start, std::size_t end) {
+    assert(span.size() > end);
+    assert(end > start);
+    T const& pivot = span[end];
+    my_span<T> interesting_span (&span[start], end-start+1);
+    std::size_t temporary_pivot_index = start;
+    for (std::size_t i=start; i<end; i++) {
+        if (span[i] < pivot) {
+            std::swap(span[i], span[temporary_pivot_index]);
+            temporary_pivot_index++;
+        }
+    }
+    std::swap(span[end], span[temporary_pivot_index]);
+    return temporary_pivot_index;
+}
+
+template<typename T>
+void do_quick_sort_lomuto(my_span<T>& span, std::size_t start, std::size_t end) {
+    /*std::cout << "do_quick_sort: span.size() = " << span.size() << std::endl;
+    std::cout << "do_quick_sort: start = " << start << std::endl;
+    std::cout << "do_quick_sort: end = " << end << std::endl;
+    if (start == end) {
+        return;
+    }*/
+    assert(span.size() > end);
+    assert(end > start);
+    std::size_t partition_index = quicksort_partition_lomuto(span, start, end);
+    assert(partition_index >= start);
+    assert(partition_index <= end);
+    if (partition_index > start + 1) {
+        do_quick_sort_lomuto(span, start, partition_index - 1);
+    }
+    if (partition_index + 1 < end) {
+        do_quick_sort_lomuto(span, partition_index + 1, end);
+    }
+}
+
+template<typename T>
+void quick_sort_v1(my_span<T> span) {
+    do_quick_sort_lomuto(span, 0, span.size()-1);
 }
 
 }
