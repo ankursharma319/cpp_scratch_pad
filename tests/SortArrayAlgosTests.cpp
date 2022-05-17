@@ -86,6 +86,29 @@ TEST(SortArrayAlgosTest, test_counting_sort_v1) {
     }
 }
 
+TEST(SortArrayAlgosTest, test_counting_sort_v2) {
+    short arr[8] = {-9, 3, 2, -2, 2, -1, -6, 4};
+    ankur::counting_sort_v2(my_span<short>(arr), 0, 10);
+
+    EXPECT_EQ(-9, arr[7]);
+    EXPECT_EQ(-6, arr[6]);
+    EXPECT_EQ(4, arr[5]);
+    EXPECT_EQ(3, arr[4]);
+    EXPECT_EQ(2, arr[3]);
+    EXPECT_EQ(-2, arr[2]);
+    EXPECT_EQ(2, arr[1]);
+    EXPECT_EQ(-1, arr[0]);
+}
+
+TEST(SortArrayAlgosTest, test_radix_sort) {
+    int arr[10] = {-3, 90, 500, 419, 391, 250, 148, -987, -101, 0};
+    ankur::radix_sort(my_span<int>(arr), 10);
+
+    for (std::size_t x = 1; x < std::size(arr); x++) {
+        EXPECT_LE(arr[x-1], arr[x]);
+    }
+}
+
 TEST_F(SortLargeArrayAlgosTestFixture, test_selection_sort_large_input) {
     ankur::selection_sort(span);
     EXPECT_EQ(LARGE_N, *(span.end()-1));
@@ -128,10 +151,12 @@ TEST_F(SortLargeArrayAlgosTestFixture, test_avl_sort_large_input) {
     EXPECT_EQ(1, *span.begin());
 }
 
-TEST_F(SortLargeArrayAlgosTestFixture, test_counting_sort_v1_large_input) {
-    // skip because takes up a huge amount of memory (like 32 GB)
+// skip because takes up a huge amount of memory (like 32 GB)
+/*TEST_F(SortLargeArrayAlgosTestFixture, test_counting_sort_v1_large_input) {
     return;
     ankur::counting_sort_v1(span);
     EXPECT_EQ(LARGE_N, *(span.end()-1));
     EXPECT_EQ(1, *span.begin());
 }
+*/
+

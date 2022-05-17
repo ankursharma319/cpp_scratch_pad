@@ -1,8 +1,12 @@
+#include <algorithm>
+#include <array>
 #include <cstddef>
 #include <iostream>
 #include <limits>
 #include <cassert>
 #include <cmath>
+#include <type_traits>
+#include <vector>
 #include "binary_search_tree.hpp"
 #include "avl_tree.hpp"
 #include "my_span.hpp"
@@ -194,12 +198,14 @@ template<typename T>
 void counting_sort_v1(my_span<T> span) {
     std::size_t counts_size = (std::size_t) pow(2, sizeof(T)*8);
     std::size_t* counts = new std::size_t[counts_size]{ 0 };
+    assert(std::is_integral_v<T>);
     // we assume that T starts on 0
     // if not, we need a separate mapping function from a value T t
     // to index in counts. Probably something that just offsets.
     // for something like floats, would need to come up with a more
     // complex mapping function
     for (auto it = span.begin(); it != span.end(); it++) {
+        assert(*it >= 0); // didnt implement, too lazy
         counts[*it]++;
     }
     std::size_t n_inserted = 0;
@@ -213,6 +219,85 @@ void counting_sort_v1(my_span<T> span) {
         }
     }
     delete[] counts;
+}
+
+template<typename T>
+T get_digit_at_nth_position(T number, std::size_t digit_number, std::size_t base) {
+    assert(std::is_integral_v<T>);
+    if constexpr (!std::is_unsigned_v<T>) {
+        number = abs(number);
+    }
+    return (number/(T)pow(base, digit_number)) % base;
+}
+
+template<typename T>
+void counting_sort_v2(my_span<T> span, std::size_t digit_number, std::size_t base) {
+    assert(std::is_integral_v<T>);
+    // doesnt sort signed integers correctly
+    // (sorts them as if they were positive also)
+    // users of counting sort (i.e. radix sort)
+    // should do something about negative integers
+    assert(base > 0);
+
+    // populate counts of each digit
+    std::size_t* counts = new std::size_t[base]{ 0 };
+    for (auto it = span.begin(); it != span.end(); it++) {
+        counts[get_digit_at_nth_position(*it, digit_number, base)]++;
+    }
+
+    // transform counts into cumulative
+    for (std::size_t i=1; i < base; i++) {
+        counts[i] = counts[i-1] + counts[i];
+    }
+
+    //duplicate the output to be sorted
+    std::vector<T> dup (span.begin(), span.end());
+    // go from back to front to maintain property of stability
+    for (auto it = dup.rbegin(); it != dup.rend(); it++) {
+        std::size_t index_in_counts = get_digit_at_nth_position(*it, digit_number, base);
+        std::size_t num_elems_less_or_equal = counts[index_in_counts];
+        std::size_t new_pos = num_elems_less_or_equal - 1;
+        span[new_pos] = *it;
+        counts[index_in_counts]--;
+    }
+    delete[] counts;
+}
+
+template<typename T>
+void radix_sort(my_span<T> span, std::size_t base = 16) {
+    auto [min_it, max_it] = std::minmax_element(span.begin(), span.end());
+    assert(min_it != span.end());
+    assert(max_it != span.end());
+    T abs_max_element = *max_it;
+    if constexpr (!std::is_unsigned_v<T>) {
+        if (abs(*min_it) > abs_max_element) {
+            abs_max_element = abs(*min_it);
+        }
+    }
+    std::size_t n_digits = (log(abs_max_element)/log(base)) + 1;
+    for (std::size_t digit_number=0; digit_number<n_digits; digit_number++) {
+        counting_sort_v2(span, digit_number, base);
+    } 
+    if constexpr (!std::is_unsigned_v<T>) {
+        // handle the negative values properly
+        std::vector<T> negative_values {};
+        std::vector<T> positive_values {};
+        for (auto it = span.begin(); it != span.end(); it++) {
+            if(*it < 0) {
+                negative_values.push_back(*it);
+            } else {
+                positive_values.push_back(*it);
+            }
+        }
+        std::size_t i = 0;
+        for (auto it = negative_values.rbegin(); it != negative_values.rend(); it++, i++) {
+            span[i] = *it;
+        }
+        for (auto it = positive_values.begin(); it != positive_values.end(); it++, i++) {
+            span[i] = *it;
+        }
+        assert(i == span.size());
+    }
 }
 
 }
