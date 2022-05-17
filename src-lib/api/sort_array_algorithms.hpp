@@ -311,9 +311,25 @@ void radix_sort(my_span<T> span, std::size_t base) {
 }
 
 template<typename T>
+void move_pivot_to_right(my_span<T>& span, std::size_t start, std::size_t end) {
+    T& left = span[start];
+    T& right = span[end];
+    std::size_t mid_index = start + (end-start)/2;
+    T& mid = span[mid_index];
+    if (((left > right) && (left < mid)) || ((left < right) && (left > mid))) {
+        std::swap(left, right);
+        return;
+    }
+    if (((mid > left) && (mid < right)) || ((mid < left) && (mid > right))) {
+        std::swap(mid, right);
+    }
+}
+
+template<typename T>
 std::size_t quicksort_partition_lomuto(my_span<T>& span, std::size_t start, std::size_t end) {
     assert(span.size() > end);
     assert(end > start);
+    move_pivot_to_right(span, start, end);
     T const& pivot = span[end];
     my_span<T> interesting_span (&span[start], end-start+1);
     std::size_t temporary_pivot_index = start;
@@ -329,12 +345,6 @@ std::size_t quicksort_partition_lomuto(my_span<T>& span, std::size_t start, std:
 
 template<typename T>
 void do_quick_sort_lomuto(my_span<T>& span, std::size_t start, std::size_t end) {
-    /*std::cout << "do_quick_sort: span.size() = " << span.size() << std::endl;
-    std::cout << "do_quick_sort: start = " << start << std::endl;
-    std::cout << "do_quick_sort: end = " << end << std::endl;
-    if (start == end) {
-        return;
-    }*/
     assert(span.size() > end);
     assert(end > start);
     std::size_t partition_index = quicksort_partition_lomuto(span, start, end);
