@@ -24,11 +24,15 @@ TEST(ChainedHashMapTest, test_size_and_remove) {
     EXPECT_EQ(0, map.size());
 }
 
-TEST(ChainedHashMapTest, test_value_access) {
+TEST(ChainedHashMapTest, test_square_bracket_operator) {
     ankur::chained_hash_map<int, int> map {};
     map.insert(9, 99);
     map.insert(9, 98);
     map.insert(8, 88);
     EXPECT_EQ(99, map[9]);
     EXPECT_EQ(88, map[8]);
+    map[8] = 77;
+    EXPECT_EQ(77, map[8]);
+    map[7] = 66;
+    EXPECT_EQ(66, map[7]);
 }

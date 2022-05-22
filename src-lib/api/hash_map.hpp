@@ -48,10 +48,10 @@ public:
         if (m_array[index].get() == nullptr) {
             m_array[index] = std::make_unique<_linked_list_type>();
         }
-        auto it = m_array[index]->cbefore_begin();
-        auto before_end_it = it;
+        auto it = m_array[index]->cbegin();
+        auto before_end_it = m_array[index]->cbefore_begin();
         while(it != m_array[index]->cend()) {
-            if ((*it).key == key) {
+            if (it->key == key) {
                 return false;
             }
             before_end_it = it++;
@@ -62,13 +62,55 @@ public:
         return true;
     }
 
-    void remove(K const& key) {
-        (void) key;
+    bool remove(K const& key) {
+        std::size_t index = hash(key);
+        assert(index < m_array_capacity);
+        if (m_array[index].get() == nullptr) {
+            return false;
+        }
+        auto it = m_array[index]->cbegin();
+        auto prev_it = m_array[index]->cbefore_begin();
+        while(it != m_array[index]->cend()) {
+            if (it->key == key) {
+                break;
+            }
+            prev_it = it++;
+        }
+        if (it == m_array[index]->cend()) {
+            return false;
+        }
+        m_array[index]->erase_after(prev_it);
+        m_array_occupied_size--;
+        if (m_array[index]->empty()) {
+            m_array[index] = nullptr;
+        }
+        return true;
     }
 
     V& operator[](K const& key) {
-        (void) key;
-        throw std::logic_error("Function not yet implemented");
+        std::size_t index = hash(key);
+        assert(index < m_array_capacity);
+        if (m_array[index].get() == nullptr) {
+            m_array[index] = std::make_unique<_linked_list_type>();
+        }
+        auto it = m_array[index]->cbegin();
+        auto prev_it = m_array[index]->cbefore_begin();
+        bool found = false;
+        while(it != m_array[index]->cend()) {
+            if (it->key == key) {
+                found = true;
+                break;
+            }
+            prev_it = it++;
+        }
+        if (found) {
+            auto non_const_it = typename _linked_list_type::iterator(it);
+            return non_const_it->value;
+        }
+        chained_hash_map_detail::item<K, V> _item = {key, V()};
+        auto inserted_it = m_array[index]->insert_after(prev_it, std::move(_item));
+        m_array_occupied_size++;
+        return inserted_it->value;
     }
 
     bool contains(K const& key) const {
