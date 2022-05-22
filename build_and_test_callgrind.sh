@@ -9,4 +9,6 @@ cmake --build _build/debug/ \
 --callgrind-out-file=callgrind.out \
 ./_build/debug/tests/CppScratchPadTests
 
+# --gtest_filter=*HashMapTest.test_larger_input
+
 gprof2dot -f callgrind callgrind.out | dot -Tsvg -o callgrind_output.svg

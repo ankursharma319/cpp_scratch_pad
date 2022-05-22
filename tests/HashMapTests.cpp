@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <numeric>
 #include <vector>
+#include <unordered_map>
 
 TEST(ChainedHashMapTest, test_insert_and_contains) {
     ankur::chained_hash_map<int, int> map {};
@@ -39,7 +40,7 @@ TEST(ChainedHashMapTest, test_square_bracket_operator) {
 
 TEST(ChainedHashMapTest, test_larger_input) {
     ankur::chained_hash_map<int, int> map {};
-    std::size_t map_size = 50;
+    std::size_t map_size = LARGE_N;
     for (std::size_t i=0; i < map_size; i++) {
         map.insert(i, i*5);
         EXPECT_TRUE(map.contains(i));
@@ -49,6 +50,22 @@ TEST(ChainedHashMapTest, test_larger_input) {
     for (std::size_t i=0; i < map_size; i++) {
         map.remove(i);
         EXPECT_FALSE(map.contains(i));
+        EXPECT_EQ(map_size-i-1, map.size());
+    }
+}
+
+TEST(StdHashMapTest, test_larger_input) {
+    std::unordered_map<int, int> map {};
+    std::size_t map_size = LARGE_N;
+    for (std::size_t i=0; i < map_size; i++) {
+        map.insert({i, i*5});
+        EXPECT_TRUE(map.count(i)==1);
+        EXPECT_EQ(i+1, map.size());
+        EXPECT_EQ(i*5, map[i]);
+    }
+    for (std::size_t i=0; i < map_size; i++) {
+        map.erase(i);
+        EXPECT_FALSE(map.count(i)==1);
         EXPECT_EQ(map_size-i-1, map.size());
     }
 }
