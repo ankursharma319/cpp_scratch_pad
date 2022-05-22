@@ -36,3 +36,19 @@ TEST(ChainedHashMapTest, test_square_bracket_operator) {
     map[7] = 66;
     EXPECT_EQ(66, map[7]);
 }
+
+TEST(ChainedHashMapTest, test_larger_input) {
+    ankur::chained_hash_map<int, int> map {};
+    std::size_t map_size = 50;
+    for (std::size_t i=0; i < map_size; i++) {
+        map.insert(i, i*5);
+        EXPECT_TRUE(map.contains(i));
+        EXPECT_EQ(i+1, map.size());
+        EXPECT_EQ(i*5, map[i]);
+    }
+    for (std::size_t i=0; i < map_size; i++) {
+        map.remove(i);
+        EXPECT_FALSE(map.contains(i));
+        EXPECT_EQ(map_size-i-1, map.size());
+    }
+}

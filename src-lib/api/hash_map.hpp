@@ -116,7 +116,15 @@ public:
     bool contains(K const& key) const {
         std::size_t index = hash(key);
         assert(index < m_array_capacity);
-        return m_array[index].get() != nullptr;
+        if (m_array[index].get() == nullptr) {
+            return false;
+        }
+        for(auto it = m_array[index]->cbegin(); it != m_array[index]->cend(); it++) {
+            if (it->key == key) {
+                return true;
+            }
+        }
+        return false;
     }
 
     std::size_t size() const {
