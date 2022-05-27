@@ -28,7 +28,12 @@ public:
     void skip() {
         assert(m_current_size > 0);
         assert(m_current_size == m_current_string.size());
-        m_current_hash = m_current_hash - m_current_string.front() * pow_without_overflow(PRIME_BASE, m_current_size-1, PRIME_MOD);
+        std::size_t subtractand = (m_current_string.front() * pow_without_overflow(PRIME_BASE, m_current_size-1, PRIME_MOD)) % PRIME_MOD;
+        if (subtractand > m_current_hash) {
+            m_current_hash = PRIME_MOD - (subtractand - m_current_hash);
+        } else {
+            m_current_hash -= subtractand;
+        }
         m_current_size--;
         m_current_string.erase(m_current_string.begin());
     }
@@ -41,7 +46,7 @@ private:
         }
         return power;
     }
-    const std::size_t PRIME_BASE = 97;
+    const std::size_t PRIME_BASE = 100;
     const std::size_t PRIME_MOD = 1000000007;
     std::size_t m_current_size = 0;
     std::size_t m_current_hash = 0;
@@ -86,24 +91,53 @@ bool substr_contains_v2(
 ) {
     assert(big_size >= small_size);
     rolling_hash rh_small, rh_rolling;
+    /*
+    std::cout << "--------------------------------------" << std::endl;
+    std::cout << "Trying to find if substr_contains_v2 where big_string = " << big_string << " and small string = " << small_string << std::endl;
+    std::cout << "--------------------------------------" << std::endl;
+    std::cout << "STARTING LOOP OVER SMALL STRING" << std::endl;
+    */
+    bool _found_in_first_try = true;
     for (std::size_t i=0; i<small_size; i++) {
+        //std::cout << "char in small_string at i=" << i << " is " << small_string[i] << "(" << (unsigned int) small_string[i] << ")" << std::endl;
+        //std::cout << "char in big_string at i=" << i << " is " << big_string[i] << "(" << (unsigned int) big_string[i] << ")" << std::endl;
         rh_small.append(small_string[i]);
         rh_rolling.append(big_string[i]);
+        //std::cout << "rh_small = " << rh_small() << std::endl;
+        //std::cout << "rh_rolling = " << rh_rolling() << std::endl;
+        if (small_string[i] != big_string[i]) {
+            _found_in_first_try = false;
+        }
     }
-    for (std::size_t i=small_size-1; i<big_size-small_size; i++) {
+    if (_found_in_first_try) {
+        assert(rh_small() == rh_rolling());
+        return true;
+    }
+    //std::cout << "STARTING LOOP OVER BIG STRING" << std::endl;
+    for (std::size_t i=small_size; i<big_size; i++) {
+        rh_rolling.skip();
+        rh_rolling.append(big_string[i]);
+        //std::cout << "char in big_string at i=" << i << " is " << big_string[i] << "(" << (int) big_string[i] << ")" << std::endl;
+        //std::cout << "rh_small = " << rh_small() << std::endl;
+        //std::cout << "rh_rolling = " << rh_rolling() << std::endl;
         if (rh_small() == rh_rolling()) {
+            //std::cout << "substr_contains_v2:: hashes MATCHED at i=" << i << std::endl;
             bool matched = true;
             for (std::size_t j=0; j<small_size; j++) {
-                if (big_string[j+i] != small_string[j]) {
+                std::size_t big_char_index = i-small_size+1+j;
+                char big_char = big_string[big_char_index];
+                char small_char = small_string[j];
+                //std::cout << "substr_contains_v2:: comparing at i=" << i << ", j=" << j << ", big_char_index=" << big_char_index << std::endl;
+                //std::cout << "substr_contains_v2:: comparing big_char=" << big_char << ", small_char=" << small_char << std::endl;
+                if (big_char != small_char) {
                     matched = false;
+                    break;
                 }
             }
             if (matched) {
                 return true;
             }
         }
-        rh_rolling.skip();
-        rh_rolling.append(big_string[i]);
     }
     return false;
 }
