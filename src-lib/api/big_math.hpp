@@ -7,7 +7,7 @@
 
 namespace big_math {
 
-std::string add_integers(std::string const& x, std::string const& y);
+std::string add_hex_integers(std::string const& x, std::string const& y);
 
 }
 
