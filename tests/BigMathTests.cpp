@@ -11,3 +11,10 @@ TEST(BigMathTest, test_small_addition_hex) {
     EXPECT_EQ("132", big_math::add_hex_integers("99", "99"));
     EXPECT_EQ("14B", big_math::add_hex_integers("AC", "9F"));
 }
+
+TEST(BigMathTest, test_big_addition_hex) {
+    EXPECT_EQ("222224", big_math::add_hex_integers("2", "222222"));
+    EXPECT_EQ("0", big_math::add_hex_integers("-FFFFFFFFFFFBB", "FFFFFFFFFFFBB"));
+    EXPECT_EQ("77778", big_math::add_hex_integers("-ABCDE", "123456"));
+    // result vector should be 30584,7
+}

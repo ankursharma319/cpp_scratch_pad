@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 #include <cmath>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -13,7 +14,7 @@
 namespace {
 
 std::uint8_t hex_char_to_value(char c) {
-    std::cout << "hex_char_to_value:: c = " << c << std::endl;
+    //std::cout << "hex_char_to_value:: c = " << c << std::endl;
     assert((c >= '0' && c <= '9') 
         || (c >= 'A' && c <= 'F') 
         || (c >= 'a' && c <= 'f'));
@@ -39,6 +40,15 @@ void remove_leading_char(std::string &str, const char charToRemove) {
 }
 
 template<typename base_type>
+std::string vec_to_string(std::vector<base_type> const& vec) {
+    std::string res = "";
+    for (auto elem: vec) {
+        res += std::to_string(elem) + ", ";
+    }
+    return res;
+}
+
+template<typename base_type>
 std::vector<base_type> parse_into_vector_from_hex(std::string_view const& sv) {
     static_assert(std::is_integral_v<base_type>, "Need integral base type");
     static_assert(std::is_unsigned_v<base_type>, "Need unsigned integral base type");
@@ -55,7 +65,7 @@ std::vector<base_type> parse_into_vector_from_hex(std::string_view const& sv) {
             i < std::numeric_limits<std::size_t>::max();
             j++, i--
         ) {
-            std::cout << "parse_into_vector_from_hex:: i = " << i << ", j = " << j << std::endl;
+            //std::cout << "parse_into_vector_from_hex:: i = " << i << ", j = " << j << std::endl;
             std::uint8_t hex_digit = hex_char_to_value(sv[i]);
             assert(hex_digit < 16);
             current_num += hex_digit * base_type(pow(16, j));
@@ -123,6 +133,7 @@ public:
         assert((x2.isNegative_ == x1.isNegative_) || (x2.isNegative_));
         bool only_x2_is_neg = !x1.isNegative_ && x2.isNegative_;
         std::cout << "adding " << x1.to_string(16) << " and " << x2.to_string(16) << std::endl;
+        std::cout << "i.e. - adding vectors " << vec_to_string(x1.number_) << " and " << vec_to_string(x2.number_) << std::endl;
         std::size_t bigger_size = std::max(other.number_.size(), number_.size());
         base_type overflow = 0;
         for (std::size_t i=0; i<bigger_size; i++) {
@@ -157,7 +168,7 @@ public:
             res.push_back(1);
         }
 
-        std::reverse(res.begin(), res.end());
+        std::cout << "result vector = " << vec_to_string(res) << std::endl;
         bool res_is_neg = (only_x2_is_neg && overflow) || (x1.isNegative_ && x2.isNegative_);
         return big_integer(res, res_is_neg);
     }
