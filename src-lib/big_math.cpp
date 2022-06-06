@@ -67,6 +67,11 @@ std::vector<base_type> parse_into_vector_from_hex(std::string_view const& sv) {
 
 template<typename base_type>
 std::string to_hex_string_from_vector(std::vector<base_type> const& vec) {
+    //std::cout << "to_hex_string_from_vector:: vec = ";
+    //for (auto elem: vec) {
+    //    std::cout << elem << ", ";
+    //}
+    //std::cout << std::endl;
     static_assert(std::is_integral_v<base_type>, "Need integral base type");
     static_assert(std::is_unsigned_v<base_type>, "Need unsigned integral base type");
     constexpr std::size_t n_hex_digits_per_base_type_value = sizeof(base_type) * 8 / 4;
@@ -113,34 +118,51 @@ public:
 
     big_integer operator+(big_integer const& other) const {
         std::vector<base_type> res {};
-        (void) res;
+        big_integer const& x1 = isNegative_ && !other.isNegative_ ? other : *this;
+        big_integer const& x2 = isNegative_ && !other.isNegative_ ? *this : other;
+        assert((x2.isNegative_ == x1.isNegative_) || (x2.isNegative_));
+        bool only_x2_is_neg = !x1.isNegative_ && x2.isNegative_;
+        std::cout << "adding " << x1.to_string(16) << " and " << x2.to_string(16) << std::endl;
         std::size_t bigger_size = std::max(other.number_.size(), number_.size());
         base_type overflow = 0;
         for (std::size_t i=0; i<bigger_size; i++) {
             base_type current_num = overflow;
             overflow = 0;
-            if (other.number_.size() > i) {
-                if (std::numeric_limits<base_type>::max() - current_num < other.number_.at(i)) {
+            if (x2.number_.size() > i) {
+                if (std::numeric_limits<base_type>::max() - current_num < x2.number_.at(i)) {
                     overflow = 1;
                 }
-                current_num += other.number_.at(i);
+                current_num += x2.number_.at(i);
             }
-            if (number_.size() > i) {
-                if (std::numeric_limits<base_type>::max() - current_num < number_.at(i)) {
-                    overflow = 1;
+            std::cout << "current_num after overflow and x2 is " << current_num << std::endl;
+            if (x1.number_.size() > i) {
+                if (only_x2_is_neg) {
+                    if (current_num > x1.number_.at(i)) {
+                        overflow = 1;
+                        current_num = current_num - x1.number_.at(i);
+                    } else {
+                        current_num = x1.number_.at(i) - current_num;
+                    }
+                } else {
+                    if (std::numeric_limits<base_type>::max() - current_num < x1.number_.at(i)) {
+                        overflow = 1;
+                    }
+                    current_num += x1.number_.at(i);
                 }
-                current_num += number_.at(i);
             }
+            std::cout << "'Pushing back to res, current_num = " << current_num << std::endl;
             res.push_back(current_num);
         }
-        if (overflow == 1) {
+        if (overflow == 1 && !only_x2_is_neg) {
             res.push_back(1);
         }
+
         std::reverse(res.begin(), res.end());
-        return big_integer(res, false);
+        bool res_is_neg = (only_x2_is_neg && overflow) || (x1.isNegative_ && x2.isNegative_);
+        return big_integer(res, res_is_neg);
     }
 
-    std::string to_string(std::size_t output_base) {
+    std::string to_string(std::size_t output_base) const {
         assert(output_base == 16);
         std::string res = to_hex_string_from_vector(number_);
         if (isNegative_) {
