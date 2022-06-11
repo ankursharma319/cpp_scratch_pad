@@ -49,6 +49,27 @@ std::string vec_to_string(std::vector<base_type> const& vec) {
 }
 
 template<typename base_type>
+void trim_leading_zeros(std::vector<base_type>& x) {
+    for (std::size_t i = x.size(); i > 0; i--) {
+        if (x.at(i-1) == 0) {
+            continue;
+        }
+        x.erase(x.begin()+i, x.end());
+        return;
+    }
+}
+
+template<typename base_type>
+bool is_zero(std::vector<base_type>& x) {
+    for (std::size_t i = x.size(); i > 0; i--) {
+        if (x.at(i-1) != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template<typename base_type>
 std::vector<base_type> parse_into_vector_from_hex(std::string_view const& sv) {
     static_assert(std::is_integral_v<base_type>, "Need integral base type");
     static_assert(std::is_unsigned_v<base_type>, "Need unsigned integral base type");
@@ -111,6 +132,7 @@ public:
     big_integer(std::string const& num): big_integer() {
         static_assert(input_base==16 || input_base==10, "Unsupported input base");
         assert(num.size() >= 1);
+        std::cout << "Creating big_integer out of num " << num << " with base_type::max = " << std::numeric_limits<base_type>::max() << std::endl;
         std::size_t highest_bit_index = 0;
         if (num.at(0) == '-') {
             assert(num.size() >= 2);
@@ -126,51 +148,73 @@ public:
     : number_(num), isNegative_(is_negative)
     {}
 
+    bool abs_bigger_than_or_equal_to(big_integer const& other) const {
+        if (other.number_.size() != number_.size()) {
+            return number_.size() > other.number_.size();
+        }
+        for (std::size_t i = number_.size(); i > 0; i--) {
+            if (other.number_.at(i-1) == number_.at(i-1)) {
+                continue;
+            }
+            return number_.at(i-1) > other.number_.at(i-1);
+        }
+        return true;
+    };
+
     big_integer operator+(big_integer const& other) const {
         std::vector<base_type> res {};
-        big_integer const& x1 = isNegative_ && !other.isNegative_ ? other : *this;
-        big_integer const& x2 = isNegative_ && !other.isNegative_ ? *this : other;
-        assert((x2.isNegative_ == x1.isNegative_) || (x2.isNegative_));
-        bool only_x2_is_neg = !x1.isNegative_ && x2.isNegative_;
+        big_integer const& x1 = abs_bigger_than_or_equal_to(other) ? *this : other;
+        big_integer const& x2 = abs_bigger_than_or_equal_to(other) ? other : *this;
+        bool do_subtraction = x1.isNegative_ != x2.isNegative_;
+        bool final_result_is_negative = (x1.isNegative_ && x2.isNegative_) || x1.isNegative_;
         std::cout << "adding " << x1.to_string(16) << " and " << x2.to_string(16) << std::endl;
-        std::cout << "i.e. - adding vectors " << vec_to_string(x1.number_) << " and " << vec_to_string(x2.number_) << std::endl;
-        std::size_t bigger_size = std::max(other.number_.size(), number_.size());
+        std::cout << "i.e. - adding vectors x1 = " << vec_to_string(x1.number_) << " and x2 = " << vec_to_string(x2.number_) << std::endl;
+        std::cout << "do_subtraction = " << do_subtraction << std::endl;
+        std::cout << "final_result_is_negative = " << final_result_is_negative << std::endl;
         base_type overflow = 0;
-        for (std::size_t i=0; i<bigger_size; i++) {
+        for (std::size_t i=0; i<x1.number_.size(); i++) {
+            base_type upper_num = x1.number_.at(i);
+            base_type lower_num = x2.number_.size() > i ? x2.number_.at(i) : 0; 
             base_type current_num = overflow;
             overflow = 0;
-            if (x2.number_.size() > i) {
-                if (std::numeric_limits<base_type>::max() - current_num < x2.number_.at(i)) {
+            if (std::numeric_limits<base_type>::max() - current_num < lower_num) {
+                overflow = 1;
+            }
+            current_num += lower_num;
+            std::cout << "current_num after overflow and lower_num is " << current_num << std::endl;
+
+            if (do_subtraction) {
+                if (current_num > upper_num) {
+                    std::cout << "doing subtraction - with overflow" << std::endl;
+                    overflow = 1;
+                    current_num = current_num - upper_num;
+                    current_num = std::numeric_limits<base_type>::max() - current_num + 1;
+                } else {
+                    std::cout << "doing simple subtraction - no overflow" << std::endl;
+                    current_num = upper_num - current_num;
+                }
+            } else {
+                std::cout << "doing simple addition" << std::endl;
+                if (std::numeric_limits<base_type>::max() - current_num < upper_num) {
                     overflow = 1;
                 }
-                current_num += x2.number_.at(i);
+                current_num += upper_num;
             }
-            std::cout << "current_num after overflow and x2 is " << current_num << std::endl;
-            if (x1.number_.size() > i) {
-                if (only_x2_is_neg) {
-                    if (current_num > x1.number_.at(i)) {
-                        overflow = 1;
-                        current_num = current_num - x1.number_.at(i);
-                    } else {
-                        current_num = x1.number_.at(i) - current_num;
-                    }
-                } else {
-                    if (std::numeric_limits<base_type>::max() - current_num < x1.number_.at(i)) {
-                        overflow = 1;
-                    }
-                    current_num += x1.number_.at(i);
-                }
-            }
-            std::cout << "'Pushing back to res, current_num = " << current_num << std::endl;
+
+            std::cout << "'Pushing back to res, current_num = " << current_num << ", current overlfow = " << overflow << std::endl;
             res.push_back(current_num);
         }
-        if (overflow == 1 && !only_x2_is_neg) {
+        if (overflow == 1) {
+            assert(!do_subtraction);
             res.push_back(1);
         }
-
+        if(is_zero(res)) {
+            final_result_is_negative = false;
+        } else {
+            trim_leading_zeros(res);
+        }
         std::cout << "result vector = " << vec_to_string(res) << std::endl;
-        bool res_is_neg = (only_x2_is_neg && overflow) || (x1.isNegative_ && x2.isNegative_);
-        return big_integer(res, res_is_neg);
+        return big_integer(res, final_result_is_negative);
     }
 
     std::string to_string(std::size_t output_base) const {
