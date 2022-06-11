@@ -132,7 +132,7 @@ public:
     big_integer(std::string const& num): big_integer() {
         static_assert(input_base==16 || input_base==10, "Unsupported input base");
         assert(num.size() >= 1);
-        std::cout << "Creating big_integer out of num " << num << " with base_type::max = " << std::numeric_limits<base_type>::max() << std::endl;
+        //std::cout << "Creating big_integer out of num " << num << " with base_type::max = " << std::numeric_limits<base_type>::max() << std::endl;
         std::size_t highest_bit_index = 0;
         if (num.at(0) == '-') {
             assert(num.size() >= 2);
@@ -167,10 +167,10 @@ public:
         big_integer const& x2 = abs_bigger_than_or_equal_to(other) ? other : *this;
         bool do_subtraction = x1.isNegative_ != x2.isNegative_;
         bool final_result_is_negative = (x1.isNegative_ && x2.isNegative_) || x1.isNegative_;
-        std::cout << "adding " << x1.to_string(16) << " and " << x2.to_string(16) << std::endl;
-        std::cout << "i.e. - adding vectors x1 = " << vec_to_string(x1.number_) << " and x2 = " << vec_to_string(x2.number_) << std::endl;
-        std::cout << "do_subtraction = " << do_subtraction << std::endl;
-        std::cout << "final_result_is_negative = " << final_result_is_negative << std::endl;
+        //std::cout << "adding " << x1.to_string(16) << " and " << x2.to_string(16) << std::endl;
+        //std::cout << "i.e. - adding vectors x1 = " << vec_to_string(x1.number_) << " and x2 = " << vec_to_string(x2.number_) << std::endl;
+        //std::cout << "do_subtraction = " << do_subtraction << std::endl;
+        //std::cout << "final_result_is_negative = " << final_result_is_negative << std::endl;
         base_type overflow = 0;
         for (std::size_t i=0; i<x1.number_.size(); i++) {
             base_type upper_num = x1.number_.at(i);
@@ -181,27 +181,27 @@ public:
                 overflow = 1;
             }
             current_num += lower_num;
-            std::cout << "current_num after overflow and lower_num is " << current_num << std::endl;
+            //std::cout << "current_num after overflow and lower_num is " << current_num << std::endl;
 
             if (do_subtraction) {
                 if (current_num > upper_num) {
-                    std::cout << "doing subtraction - with overflow" << std::endl;
+                    //std::cout << "doing subtraction - with overflow" << std::endl;
                     overflow = 1;
                     current_num = current_num - upper_num;
                     current_num = std::numeric_limits<base_type>::max() - current_num + 1;
                 } else {
-                    std::cout << "doing simple subtraction - no overflow" << std::endl;
+                    //std::cout << "doing simple subtraction - no overflow" << std::endl;
                     current_num = upper_num - current_num;
                 }
             } else {
-                std::cout << "doing simple addition" << std::endl;
+                //std::cout << "doing simple addition" << std::endl;
                 if (std::numeric_limits<base_type>::max() - current_num < upper_num) {
                     overflow = 1;
                 }
                 current_num += upper_num;
             }
 
-            std::cout << "'Pushing back to res, current_num = " << current_num << ", current overlfow = " << overflow << std::endl;
+            //std::cout << "'Pushing back to res, current_num = " << current_num << ", current overlfow = " << overflow << std::endl;
             res.push_back(current_num);
         }
         if (overflow == 1) {
@@ -213,7 +213,7 @@ public:
         } else {
             trim_leading_zeros(res);
         }
-        std::cout << "result vector = " << vec_to_string(res) << std::endl;
+        //std::cout << "result vector = " << vec_to_string(res) << std::endl;
         return big_integer(res, final_result_is_negative);
     }
 
