@@ -36,3 +36,13 @@ TEST(BigMathTest, test_big_addition_hex) {
     );
     EXPECT_EQ("-7778", big_math::add_hex_integers("-12345","ABCD"));
 }
+
+TEST(BigMathTest, test_small_multiplication_hex) {
+    EXPECT_EQ("E", big_math::multiply_hex_integers("2", "7"));
+    EXPECT_EQ("-15", big_math::multiply_hex_integers("3", "-7"));
+    EXPECT_EQ("-23", big_math::multiply_hex_integers("7", "-5"));
+    EXPECT_EQ("220", big_math::multiply_hex_integers("-10", "-22"));
+    EXPECT_EQ("-574E4", big_math::multiply_hex_integers("256", "-256"));
+    EXPECT_EQ("5B71", big_math::multiply_hex_integers("99", "99"));
+    EXPECT_EQ("6AD4", big_math::multiply_hex_integers("AC", "9F"));
+}

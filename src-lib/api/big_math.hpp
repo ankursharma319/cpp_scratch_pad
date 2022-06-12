@@ -8,6 +8,7 @@
 namespace big_math {
 
 std::string add_hex_integers(std::string const& x, std::string const& y);
+std::string multiply_hex_integers(std::string const& x, std::string const& y);
 
 }
 

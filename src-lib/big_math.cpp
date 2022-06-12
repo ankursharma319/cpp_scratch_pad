@@ -70,6 +70,53 @@ bool is_zero(std::vector<base_type>& x) {
 }
 
 template<typename base_type>
+base_type hi(base_type x) {
+    return x >> (sizeof(base_type) * 8 / 2);
+}
+
+template<typename base_type>
+base_type lo(base_type x) {
+    // Broken down into steps
+    //  1           = 00000001b
+    //  1 << 5      = 00100000b
+    // (1 << 5) - 1 = 00011111b
+    base_type low_half_all_ones = (1U << (sizeof(base_type) * 8 / 2))-1U;
+    return low_half_all_ones & x;
+}
+
+template<typename base_type>
+void multiply(base_type x1, base_type x2, base_type& result, base_type& carry) {
+    // in order to calculate the carry
+    // split both operands into half-words
+    // then apply long multiplication to the half-words
+    base_type s1, s2, s3, s4, temp;
+    static const base_type biggest_number_allowed = (1U << (sizeof(base_type) * 8 / 2))-1U; 
+    temp = lo(x1) * lo(x2);
+    s1 = lo(temp);
+    s2 = hi(temp);
+
+    temp = hi(x1) * lo(x2);
+    assert(biggest_number_allowed - s2 >= lo(temp));
+    s2 += lo(temp);
+    s3 = hi(temp);
+
+    temp = lo(x1) * hi(x2);
+    assert(biggest_number_allowed - s2 >= lo(temp));
+    assert(biggest_number_allowed - s3 >= hi(temp));
+    s2 += lo(temp);
+    s3 += hi(temp);
+
+    temp = hi(x1) * hi(x2);
+    assert(biggest_number_allowed - s3 >= lo(temp));
+    s3 += lo(temp);
+    s4 = hi(temp);
+
+    result = s1 + (s2 << (sizeof(base_type) * 8 / 2));
+    assert(result == x1*x2);
+    carry = s3 + (s4 << (sizeof(base_type) * 8 / 2));
+}
+
+template<typename base_type>
 std::vector<base_type> parse_into_vector_from_hex(std::string_view const& sv) {
     static_assert(std::is_integral_v<base_type>, "Need integral base type");
     static_assert(std::is_unsigned_v<base_type>, "Need unsigned integral base type");
@@ -130,7 +177,7 @@ class big_integer {
 public:
     big_integer(): number_(), isNegative_(false) {}
     big_integer(std::string const& num): big_integer() {
-        static_assert(input_base==16 || input_base==10, "Unsupported input base");
+        static_assert(input_base==16, "Unsupported input base");
         assert(num.size() >= 1);
         //std::cout << "Creating big_integer out of num " << num << " with base_type::max = " << std::numeric_limits<base_type>::max() << std::endl;
         std::size_t highest_bit_index = 0;
@@ -141,7 +188,6 @@ public:
         }
         std::string_view sv(num);
         sv.remove_prefix(highest_bit_index);
-        assert(input_base == 16);
         number_ = parse_into_vector_from_hex<base_type>(sv);
     }
     big_integer(std::vector<base_type> const& num, bool is_negative)
@@ -217,6 +263,46 @@ public:
         return big_integer(res, final_result_is_negative);
     }
 
+    big_integer operator*(big_integer const& other) const {
+        big_integer const& x1 = abs_bigger_than_or_equal_to(other) ? *this : other;
+        big_integer const& x2 = abs_bigger_than_or_equal_to(other) ? other : *this;
+        bool final_result_is_negative = (x1.isNegative_ || x2.isNegative_) && x1.isNegative_ != x2.isNegative_;
+        std::cout << "multiplying " << x1.to_string(16) << " and " << x2.to_string(16) << std::endl;
+        std::cout << "i.e. - multiplying vectors x1 = " << vec_to_string(x1.number_) << " and x2 = " << vec_to_string(x2.number_) << std::endl;
+        std::cout << "final_result_is_negative = " << final_result_is_negative << std::endl;
+
+        base_type result, carry = 0;
+        std::vector<base_type> res (x1.number_.size() + x2.number_.size(), 0);
+        assert(res.size() == x1.number_.size() + x2.number_.size());
+        for (std::size_t i=0; i<x1.number_.size(); i++) {
+            carry = 0;
+            for (std::size_t j=0; j<x2.number_.size(); j++) {
+                base_type old_carry = carry;
+                multiply(x1.number_.at(i), x2.number_.at(j), result, carry);
+                res.push_back(result + old_carry);
+                if (std::numeric_limits<base_type>::max() - result < old_carry) {
+                    carry ++;
+                }
+                result += old_carry;
+                if (std::numeric_limits<base_type>::max() - res.at(i+j) < result) {
+                    carry ++;
+                }
+                res.at(i + j) += result;
+            }
+            if (carry > 0) {
+                res.at(i+x2.number_.size()) += carry;
+            }
+        }
+
+        if(is_zero(res)) {
+            final_result_is_negative = false;
+        } else {
+            trim_leading_zeros(res);
+        }
+        std::cout << "result vector = " << vec_to_string(res) << std::endl;
+        return big_integer(res, final_result_is_negative);
+    }
+
     std::string to_string(std::size_t output_base) const {
         assert(output_base == 16);
         std::string res = to_hex_string_from_vector(number_);
@@ -238,6 +324,13 @@ std::string add_hex_integers(std::string const& s1, std::string const& s2) {
     big_integer<std::uint16_t, 16> x1 (s1);
     big_integer<std::uint16_t, 16> x2 (s2);
     big_integer<std::uint16_t, 16> y = x1 + x2;
+    return y.to_string(16);
+}
+
+std::string multiply_hex_integers(std::string const& s1, std::string const& s2) {
+    big_integer<std::uint16_t, 16> x1 (s1);
+    big_integer<std::uint16_t, 16> x2 (s2);
+    big_integer<std::uint16_t, 16> y = x1 * x2;
     return y.to_string(16);
 }
 
