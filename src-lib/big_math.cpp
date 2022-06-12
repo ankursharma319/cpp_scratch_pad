@@ -70,6 +70,16 @@ bool is_zero(std::vector<base_type>& x) {
 }
 
 template<typename base_type>
+std::string to_binary(base_type x) {
+    std::string res = "";
+    while (x > 0) {
+        res = std::to_string(x%2) + res;
+        x = x/2;
+    }
+    return res;
+}
+
+template<typename base_type>
 base_type hi(base_type x) {
     return x >> (sizeof(base_type) * 8 / 2);
 }
@@ -80,40 +90,69 @@ base_type lo(base_type x) {
     //  1           = 00000001b
     //  1 << 5      = 00100000b
     // (1 << 5) - 1 = 00011111b
-    base_type low_half_all_ones = (1U << (sizeof(base_type) * 8 / 2))-1U;
+    static const base_type low_half_all_ones = (1U << (sizeof(base_type) * 8 / 2))-1U;
     return low_half_all_ones & x;
 }
 
 template<typename base_type>
 void multiply(base_type x1, base_type x2, base_type& result, base_type& carry) {
+    // normal multiplication does not give us the carry, only the result
     // in order to calculate the carry
     // split both operands into half-words
     // then apply long multiplication to the half-words
+    std::cout << "multiplying x1 = " << x1 << " and x2 = " << x2 << std::endl;
+    //std::cout << "multiplying x1 = " << to_binary(x1) << " and x2 = " << to_binary(x2) << std::endl;
     base_type s1, s2, s3, s4, temp;
     static const base_type biggest_number_allowed = (1U << (sizeof(base_type) * 8 / 2))-1U; 
+    //std::cout << "biggest_number_allowed = " << biggest_number_allowed << std::endl;
+    //std::cout << "biggest_number_allowed = " << to_binary(biggest_number_allowed) << std::endl;
+
     temp = lo(x1) * lo(x2);
     s1 = lo(temp);
     s2 = hi(temp);
 
     temp = hi(x1) * lo(x2);
-    assert(biggest_number_allowed - s2 >= lo(temp));
     s2 += lo(temp);
     s3 = hi(temp);
 
     temp = lo(x1) * hi(x2);
-    assert(biggest_number_allowed - s2 >= lo(temp));
-    assert(biggest_number_allowed - s3 >= hi(temp));
     s2 += lo(temp);
     s3 += hi(temp);
 
     temp = hi(x1) * hi(x2);
-    assert(biggest_number_allowed - s3 >= lo(temp));
     s3 += lo(temp);
     s4 = hi(temp);
 
-    result = s1 + (s2 << (sizeof(base_type) * 8 / 2));
-    assert(result == x1*x2);
+    std::cout << "s1 = " << s1 << " (" << to_binary(s1) << ")" << std::endl;
+    std::cout << "s2 = " << s2 << " (" << to_binary(s2) << ")" << std::endl;
+    std::cout << "s3 = " << s3 << " (" << to_binary(s3) << ")" << std::endl;
+    std::cout << "s4 = " << s4 << " (" << to_binary(s4) << ")" << std::endl;
+    std::cout << "biggest_number_allowed = " << biggest_number_allowed << " (" << to_binary(biggest_number_allowed) << ")" << std::endl;
+
+    assert(s1 <= biggest_number_allowed);
+    if (s2 > biggest_number_allowed) {
+        assert(s2 < 2*(biggest_number_allowed+1));
+        std::cout << "s2 > biggest_number_allowed" << std::endl;
+        s3 += 1;
+    }
+    if (s3 > biggest_number_allowed) {
+        assert(s3 < 2*(biggest_number_allowed+1));
+        std::cout << "s3 > biggest_number_allowed" << std::endl;
+        s4 += 1;
+    }
+    assert(s4 <= biggest_number_allowed);
+    std::cout << "s1 = " << s1 << " (" << to_binary(s1) << ")" << std::endl;
+    std::cout << "s2 = " << s2 << " (" << to_binary(s2) << ")" << std::endl;
+    std::cout << "s3 = " << s3 << " (" << to_binary(s3) << ")" << std::endl;
+    std::cout << "s4 = " << s4 << " (" << to_binary(s4) << ")" << std::endl;
+    s2 = lo(s2);
+    s3 = lo(s3);
     carry = s3 + (s4 << (sizeof(base_type) * 8 / 2));
+    result = s1 + (s2 << (sizeof(base_type) * 8 / 2));
+    std::cout << "carry = " << carry << std::endl;
+    std::cout << "result = " << result << std::endl;
+    //std::cout << "x1*x2 = " << (base_type)(x1*x2) << std::endl;
+    assert(result == base_type(x1*x2));
 }
 
 template<typename base_type>
@@ -275,11 +314,12 @@ public:
         std::vector<base_type> res (x1.number_.size() + x2.number_.size(), 0);
         assert(res.size() == x1.number_.size() + x2.number_.size());
         for (std::size_t i=0; i<x1.number_.size(); i++) {
+            std::cout << "Going through x1 at i = " << i << ", x1[i] = " << x1.number_.at(i) << std::endl;
             carry = 0;
             for (std::size_t j=0; j<x2.number_.size(); j++) {
+                std::cout << "Going through x2 at j = " << j << ", x2[j] = " << x2.number_.at(j) << std::endl;
                 base_type old_carry = carry;
                 multiply(x1.number_.at(i), x2.number_.at(j), result, carry);
-                res.push_back(result + old_carry);
                 if (std::numeric_limits<base_type>::max() - result < old_carry) {
                     carry ++;
                 }

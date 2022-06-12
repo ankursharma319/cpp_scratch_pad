@@ -45,4 +45,23 @@ TEST(BigMathTest, test_small_multiplication_hex) {
     EXPECT_EQ("-574E4", big_math::multiply_hex_integers("256", "-256"));
     EXPECT_EQ("5B71", big_math::multiply_hex_integers("99", "99"));
     EXPECT_EQ("6AD4", big_math::multiply_hex_integers("AC", "9F"));
+    EXPECT_EQ("0", big_math::multiply_hex_integers("0", "FFA"));
+}
+
+TEST(BigMathTest, test_big_multiplication_hex) {
+    EXPECT_EQ("FFEFFF001", big_math::multiply_hex_integers("FFF", "FFFFFF"));
+    EXPECT_EQ(
+        "FFFFFFFFFFFEFFFF000000000001", 
+        big_math::multiply_hex_integers("FFFFFFFFFFFFFFFF", "FFFFFFFFFFFF")
+    );
+    EXPECT_EQ("444444", big_math::multiply_hex_integers("2", "222222"));
+    EXPECT_EQ("-FFFFFFFFFFF760000000001299", big_math::multiply_hex_integers("-FFFFFFFFFFFBB", "FFFFFFFFFFFBB"));
+    EXPECT_EQ("-C379948A94", big_math::multiply_hex_integers("-ABCDE", "123456"));
+    EXPECT_EQ("C379AAAB83FCBF061207360461788A6F49BCDF0DA88F184590E1D473AC1357A0246712942679BB8F5AE11E550C219BC2EE88E856678805AF110C218275CBB0BB0",
+        big_math::multiply_hex_integers(
+        "1234567890123456789012345678901234567890123456789012345678901234567890",
+        "ABCDEF0123ABCDEF0123ABCDEF0123ABCDEF0123ABCDEF0123ABCDEF0123"
+        )
+    );
+    EXPECT_EQ("-C3785541", big_math::multiply_hex_integers("-12345","ABCD"));
 }
