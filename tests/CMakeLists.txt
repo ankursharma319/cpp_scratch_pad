@@ -4,7 +4,7 @@ add_executable(CppScratchPadTests
     LinkedListTests.cpp DoublyLinkedListTests.cpp StdContainerTests.cpp
     SortArrayAlgosTests.cpp HeapTests.cpp BSTTests.cpp
     AVLTests.cpp SpanTests.cpp HashMapTests.cpp StringAlgosTests.cpp
-    BigMathTests.cpp
+    BigMathTests.cpp GraphTests.cpp
 )
 
 target_link_libraries(CppScratchPadTests gtest_main)
