@@ -343,7 +343,7 @@ public:
         return big_integer(res, final_result_is_negative);
     }
 
-    std::string to_string(std::size_t output_base) const {
+    std::string to_string([[maybe_unused]]std::size_t output_base) const {
         assert(output_base == 16);
         std::string res = to_hex_string_from_vector(number_);
         if (isNegative_) {
