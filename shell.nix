@@ -4,10 +4,9 @@ pkgs.mkShell {
     nativeBuildInputs = [
         pkgs.cmake
     ];
-    buildInputs = [
+    buildInputs = if pkgs.stdenv.isDarwin then [] else [pkgs.valgrind] ++ [
         pkgs.git
         pkgs.gdb
-        pkgs.valgrind
         pkgs.which
         pkgs.python39Packages.gprof2dot
         pkgs.xdot
