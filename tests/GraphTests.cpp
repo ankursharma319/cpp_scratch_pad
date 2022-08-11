@@ -23,10 +23,10 @@ TEST(GraphTest, test_bfs_visit) {
         {4, 3},
         {9, 8}
     };
-    std::unordered_map<int, int> expected_levels = {
+    std::unordered_map<int, std::size_t> expected_levels = {
         {1, 0}, {2, 1}, {3, 1}, {8, 2}, {4, 2}, {9, 3}
     };
-    ankur::GraphBFSResults results = ankur::bfs_visit(adj_list);
+    ankur::GraphBFSResults results = ankur::bfs_visit(adj_list, 1);
     EXPECT_EQ(expected_visited_order, results.visited);
     EXPECT_EQ(expected_parents, results.parents);
     EXPECT_EQ(expected_levels, results.levels);
