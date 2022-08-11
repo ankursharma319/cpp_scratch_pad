@@ -25,6 +25,12 @@ void dfs_visit_for_top_sort(
 
 namespace ankur {
 
+GraphBFSResults bfs_visit(std::unordered_map<int, std::vector<int>> const& adj_list) {
+    struct GraphBFSResults results {};
+    (void) adj_list;
+    return results;
+}
+
 std::vector<int> topological_sort(std::unordered_map<int, std::vector<int>> const& adj_list) {
     std::vector<int> res {};
     std::unordered_set<int> unvisited_vertices = key_set(adj_list);
