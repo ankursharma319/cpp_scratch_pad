@@ -1,3 +1,6 @@
+#ifndef MY_BST_TREE_HPP
+#define MY_BST_TREE_HPP
+
 #include <cassert>
 #include <cstddef>
 #include <string>
@@ -214,3 +217,5 @@ private:
 };
 
 }
+
+#endif

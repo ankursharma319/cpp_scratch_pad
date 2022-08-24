@@ -1,3 +1,6 @@
+#ifndef MY_HEAP_HPP
+#define MY_HEAP_HPP
+
 #include "linked_list.hpp"
 #include <cassert>
 #include <cstddef>
@@ -95,3 +98,5 @@ public:
 };
 
 }
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef MY_AVL_TREE_HPP
+#define MY_AVL_TREE_HPP
+
 #include <cassert>
 #include <cstddef>
 #include <string>
@@ -236,3 +239,5 @@ private:
 };
 
 }
+
+#endif

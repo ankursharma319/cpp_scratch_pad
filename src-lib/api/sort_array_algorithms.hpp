@@ -1,3 +1,6 @@
+#ifndef MY_SORT_ARRAY_ALGORITHMS_HPP
+#define MY_SORT_ARRAY_ALGORITHMS_HPP
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -364,3 +367,5 @@ void quick_sort_v1(my_span<T> span) {
 }
 
 }
+
+#endif
