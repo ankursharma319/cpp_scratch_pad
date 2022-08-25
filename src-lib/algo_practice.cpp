@@ -79,4 +79,70 @@ bool is_rotated_string(std::string const& s1, std::string const& s2) {
     return concatenated.find(s2) != std::string::npos;
 }
 
+ForwardListNode* create_forward_list_from_vector(std::vector<signed int> const& values) {
+    assert(values.size() > 0);
+    auto it = values.cbegin();
+    ForwardListNode* head = new ForwardListNode{nullptr, *it};
+    it++;
+    ForwardListNode* current = nullptr;
+    ForwardListNode* previous = head;
+    for(; it != values.cend(); it++) {
+        current = new ForwardListNode{nullptr, *it};
+        previous->next = current;
+        previous = current;
+    }
+    return head;
+}
+
+bool operator==(ForwardListNode const& lhs, ForwardListNode const& rhs) {
+    ForwardListNode const * left = &lhs;
+    ForwardListNode const * right = &rhs;
+    for(; left != nullptr && right != nullptr; left = left->next, right = right->next) {
+        if(left->value != right->value) {
+            return false;
+        }
+    }
+    return (left == nullptr) && (right == nullptr);
+}
+
+ForwardListNode* partition_forward_list_node(ForwardListNode * head, signed int partition) {
+    // linked list operations needed
+    // create (bulk insert)
+    // deletion in destructor
+    // iteration (trivial)
+    // operator==
+
+    if (head == nullptr) {
+        return head;
+    }
+    ForwardListNode* current_node = head;
+    ForwardListNode* left_sub_list = new ForwardListNode{nullptr, std::nullopt};
+    ForwardListNode* right_sub_list = new ForwardListNode{nullptr, std::nullopt};
+    ForwardListNode* left_current_node = left_sub_list;
+    ForwardListNode* righ_current_node = right_sub_list;
+    while(current_node != nullptr) {
+        ForwardListNode* next = current_node->next;
+        if (current_node->value < partition) {
+            // move to the left sublist
+            left_current_node->next = current_node;
+            current_node->next = nullptr;
+            left_current_node = current_node;
+        } else {
+            // move to the right sublist
+            righ_current_node->next = current_node;
+            current_node->next = nullptr;
+            righ_current_node = current_node;
+        }
+        current_node = next;
+    }
+    ForwardListNode* new_head = left_sub_list->next ? left_sub_list->next : right_sub_list->next;
+    assert(new_head != nullptr);
+    left_current_node->next = right_sub_list->next;
+    right_sub_list->next = nullptr;
+    left_sub_list->next = nullptr;
+    delete right_sub_list;
+    delete left_sub_list;
+    return new_head;
+}
+
 }

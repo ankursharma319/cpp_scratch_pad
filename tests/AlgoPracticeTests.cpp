@@ -27,3 +27,13 @@ TEST(AlgoPracticeTest, test_1_9_string_rotation) {
     EXPECT_EQ(true, ankur::is_rotated_string("youryour", "ouryoury"));
     EXPECT_EQ(false, ankur::is_rotated_string("your", "ouryoury"));
 }
+
+TEST(AlgoPracticeTest, test_2_4_linked_list_partition) { 
+    ankur::ForwardListNode * head = ankur::create_forward_list_from_vector({3, 5, 8, 5, 10, 2, 1});
+    signed int partition_value = 5;
+    ankur::ForwardListNode * new_head = ankur::partition_forward_list_node(head, partition_value);
+    ankur::ForwardListNode * expected_head = ankur::create_forward_list_from_vector({3, 2, 1, 5, 8, 5, 10});
+    EXPECT_TRUE(*expected_head == *new_head);
+    delete new_head;
+    delete expected_head;
+}
