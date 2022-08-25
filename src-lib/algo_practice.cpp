@@ -71,4 +71,12 @@ bool is_palindrome_permutation(std::string const& s) {
     return _is_palindrome_permutation_v2(s);
 }
 
+bool is_rotated_string(std::string const& s1, std::string const& s2) {
+    if (s1.size() != s2.size()) {
+        return false;
+    }
+    std::string concatenated = s1+s1;
+    return concatenated.find(s2) != std::string::npos;
+}
+
 }
