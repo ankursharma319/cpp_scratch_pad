@@ -4,6 +4,7 @@
 #include <string>
 #include <optional>
 #include <vector>
+#include <memory>
 
 namespace ankur {
 
@@ -26,6 +27,32 @@ ForwardListNode* create_forward_list_from_vector(std::vector<signed int> const& 
 
 ForwardListNode * partition_forward_list_node(ForwardListNode * head, signed int partition);
 bool is_linked_list_palindrome(ForwardListNode const * head);
+
+class stack {
+public:
+    stack();
+
+    void push(int val);
+    int pop();
+    bool empty() const;
+    int peek() const;
+
+    ~stack();
+
+private:
+    class impl;
+    std::unique_ptr<impl> impl_;
+};
+
+class queue_via_stacks {
+public:
+    void enqueue(int val);
+    int dequeue();
+    bool empty() const;
+    int peek() const;
+private:
+    stack stack1;
+};
 
 }
 

@@ -63,3 +63,34 @@ TEST(AlgoPracticeTest, test_2_6_is_linked_list_palindrome) {
     EXPECT_EQ(true, ankur::is_linked_list_palindrome(head));
     delete head;
 }
+
+TEST(AlgoPracticeTest, test_3_4_queue_via_stacks) {
+    ankur::stack s {};
+    EXPECT_EQ(true, s.empty());
+    s.push(4);
+    s.push(3);
+    EXPECT_EQ(3, s.peek());
+    EXPECT_EQ(3, s.peek());
+    EXPECT_EQ(3, s.pop());
+    EXPECT_FALSE(s.empty());
+    EXPECT_EQ(4, s.pop());
+    EXPECT_TRUE(s.empty());
+
+    ankur::queue_via_stacks q {};
+    q.enqueue(3);
+    q.enqueue(5);
+    EXPECT_EQ(3, q.dequeue());
+    EXPECT_FALSE(q.empty());
+    EXPECT_EQ(5, q.dequeue());
+    EXPECT_TRUE(q.empty());
+    q.enqueue(7);
+    q.enqueue(7);
+    q.enqueue(8);
+    EXPECT_FALSE(q.empty());
+    EXPECT_EQ(8, q.peek());
+    EXPECT_EQ(7, q.dequeue());
+    EXPECT_FALSE(q.empty());
+    EXPECT_EQ(7, q.dequeue());
+    EXPECT_EQ(8, q.dequeue());
+    EXPECT_TRUE(q.empty());
+}

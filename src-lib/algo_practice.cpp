@@ -215,4 +215,73 @@ bool is_linked_list_palindrome(ForwardListNode const * head) {
     return _is_palindrome_recursive(head, _linked_list_length(head)).first;
 }
 
+// Queue via Stacks: Implement a MyQueue class which implements a queue using two stacks.
+void queue_via_stacks::enqueue(int val) {
+    stack1.push(val);
+}
+
+int queue_via_stacks::dequeue() {
+    stack stack2 = {};
+    while (!stack1.empty()) {
+        stack2.push(stack1.pop());
+    }
+    int to_return = stack2.pop();
+    while (!stack2.empty()) {
+        stack1.push(stack2.pop());
+    }
+    return to_return;
+}
+
+bool queue_via_stacks::empty() const {
+    return stack1.empty();
+}
+
+int queue_via_stacks::peek() const {
+    return stack1.peek();
+}
+
+// stack impl
+
+class stack::impl {
+public:
+    void push(int val) {
+        vec_.push_back(val);
+    }
+    int pop() {
+        int to_return = vec_.back();
+        vec_.pop_back();
+        return to_return;
+    }
+    bool empty() const {
+        return vec_.empty();
+    }
+    int peek() const {
+        return vec_.back();
+    }
+private:
+    std::vector<int> vec_{};
+};
+
+stack::stack()
+: impl_{std::make_unique<stack::impl>()}
+{}
+
+stack::~stack() {}
+
+void stack::push(int val) {
+    impl_->push(val);
+}
+
+int stack::pop() {
+    return impl_->pop();
+}
+
+bool stack::empty() const {
+    return impl_->empty();
+}
+
+int stack::peek() const {
+    return impl_->peek();
+}
+
 }
