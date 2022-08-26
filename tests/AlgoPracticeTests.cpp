@@ -37,3 +37,29 @@ TEST(AlgoPracticeTest, test_2_4_linked_list_partition) {
     delete new_head;
     delete expected_head;
 }
+
+TEST(AlgoPracticeTest, test_2_6_is_linked_list_palindrome) {
+    ankur::ForwardListNode * head = ankur::create_forward_list_from_vector({3, 5, 8, 5, 10, 2, 1});
+    EXPECT_EQ(false, ankur::is_linked_list_palindrome(head));
+    delete head;
+
+    head = ankur::create_forward_list_from_vector({3, 4, 5, 3});
+    EXPECT_EQ(false, ankur::is_linked_list_palindrome(head));
+    delete head;
+
+    head = ankur::create_forward_list_from_vector({3, 4, 5, 4});
+    EXPECT_EQ(false, ankur::is_linked_list_palindrome(head));
+    delete head;
+
+    head = ankur::create_forward_list_from_vector({1, 3, 5, 6, 6, 5, 3, 1});
+    EXPECT_EQ(true, ankur::is_linked_list_palindrome(head));
+    delete head;
+
+    head = ankur::create_forward_list_from_vector({1, 3, 5, 6, 7, 6, 5, 3, 1});
+    EXPECT_EQ(true, ankur::is_linked_list_palindrome(head));
+    delete head;
+
+    head = ankur::create_forward_list_from_vector({4});
+    EXPECT_EQ(true, ankur::is_linked_list_palindrome(head));
+    delete head;
+}

@@ -1,5 +1,6 @@
 #include "algo_practice.hpp"
 #include <unordered_map>
+#include <utility>
 #include <cassert>
 
 namespace {
@@ -143,6 +144,75 @@ ForwardListNode* partition_forward_list_node(ForwardListNode * head, signed int 
     delete right_sub_list;
     delete left_sub_list;
     return new_head;
+}
+
+// Examples for _is_palindrome_recursive
+// (7,9,4,9,7), 5
+// (9,4,9,7), 3
+// (4,9,7), 1
+// and then return true, 9
+// compare 9 == 9, return true, 7
+// compare 7 == 7, return true, nullptr
+
+// (7,9,4,4,9,7), 6
+// (9,4,4,9,7), 4
+// (4,4,9,7), 2
+// (4,9,7), 0
+// and then return true, 4
+// compare 4 == 4, return true, 9
+// compare 9 == 9, return true, 7
+// compare 7 == 7, return true, nullptr
+
+// (7,9,4,9,6), 5
+// (9,4,9,6), 3
+// (4,9,6), 1
+// and then return true, 9
+// compare 9 == 9, return true, 6
+// compare 7 == 6, return false, nullptr
+
+// (7,9,4,9), 4
+// (9,4,9), 2
+// (4,9), 0
+// and then return true, 4
+// compare 9 == 4, return false, nullptr
+// return false, nullptr
+
+std::pair<bool, ForwardListNode const*> _is_palindrome_recursive(ForwardListNode const * head, std::size_t remaining_size) {
+    assert(head != nullptr);
+    ForwardListNode const* next = head->next;
+    if (remaining_size == 0) {
+        return std::make_pair(true, head);
+    }
+    if (remaining_size == 1) {
+        return std::make_pair(true, next);
+    }
+    std::pair<bool, ForwardListNode const*> res = _is_palindrome_recursive(next, remaining_size-2);
+    if (!res.first || (res.second == nullptr)) {
+        return res;
+    }
+    if (res.second->value == head->value) {
+        return std::make_pair(true, res.second->next);
+    }
+    return std::make_pair(false, nullptr);
+}
+
+std::size_t _linked_list_length(ForwardListNode const * head) {
+    std::size_t count = 0;
+    for(ForwardListNode const * node = head; node != nullptr; node = node->next) {
+        count++;
+    }
+    return count;
+}
+
+bool is_linked_list_palindrome(ForwardListNode const * head) {
+    // iterative approach #1: reverse & compare
+    // iterative approach #2: push values to a stack while going to mid point (fast runner)
+    // and then iterate through the rest popping from the stack. At the end should have 0 elements
+    // here i am implementing the recursive approach
+    if (head == nullptr) {
+        return true;
+    }
+    return _is_palindrome_recursive(head, _linked_list_length(head)).first;
 }
 
 }

@@ -25,6 +25,7 @@ bool operator==(ForwardListNode const& lhs, ForwardListNode const& rhs);
 ForwardListNode* create_forward_list_from_vector(std::vector<signed int> const& val);
 
 ForwardListNode * partition_forward_list_node(ForwardListNode * head, signed int partition);
+bool is_linked_list_palindrome(ForwardListNode const * head);
 
 }
 
