@@ -307,7 +307,7 @@ void sort_stack_using_another_stack(stack& s) {
     }
 }
 
-BSTNode::~BSTNode() {
+BinaryTreeNode::~BinaryTreeNode() {
     if (left_child) {
         delete left_child;
     }
@@ -322,10 +322,10 @@ BSTNode::~BSTNode() {
     }
 }
 
-BSTNode * _bst_from_sorted_array_recursive(std::vector<int> const& vec, std::size_t begin_index, std::size_t end_index, BSTNode * parent) {
+BinaryTreeNode * _bst_from_sorted_array_recursive(std::vector<int> const& vec, std::size_t begin_index, std::size_t end_index, BinaryTreeNode * parent) {
     assert(begin_index <= end_index);
     std::size_t mid_index = begin_index + std::ceil((end_index - begin_index)/2.0);
-    BSTNode * centre_node = new BSTNode{};
+    BinaryTreeNode * centre_node = new BinaryTreeNode{};
     centre_node->parent = parent;
     centre_node->value = vec.at(mid_index);
     if (begin_index == end_index) {
@@ -338,11 +338,42 @@ BSTNode * _bst_from_sorted_array_recursive(std::vector<int> const& vec, std::siz
     return centre_node;
 }
 
-BSTNode* bst_from_sorted_array(std::vector<int> const& vec) {
+BinaryTreeNode* bst_from_sorted_array(std::vector<int> const& vec) {
     if (vec.size() == 0) {
         return nullptr;
     }
     return _bst_from_sorted_array_recursive(vec, 0, vec.size()-1, nullptr);
+}
+
+struct tmp_is_bst_result {
+    bool is_bst;
+    int min_val;
+    int max_val;
+};
+
+tmp_is_bst_result _check_if_bst_recursive(BinaryTreeNode * root) {
+    assert(root != nullptr);
+    bool is_bst = true;
+    int min_val = root->value;
+    int max_val = root->value;
+    if (root->left_child) { 
+        tmp_is_bst_result left_result = _check_if_bst_recursive(root->left_child);
+        is_bst = is_bst && left_result.is_bst && left_result.min_val <= root->value;
+        min_val = left_result.min_val;
+    }
+    if (root->right_child) {
+        tmp_is_bst_result right_result = _check_if_bst_recursive(root->right_child);
+        is_bst = is_bst && right_result.is_bst && right_result.max_val > root->value;
+        max_val = right_result.max_val;
+    }
+    return {is_bst, min_val, max_val};
+}
+
+bool is_bst(BinaryTreeNode* root) {
+    if (!root) {
+        return true;
+    }
+    return _check_if_bst_recursive(root).is_bst;
 }
 
 }

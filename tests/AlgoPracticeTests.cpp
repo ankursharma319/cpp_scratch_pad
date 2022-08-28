@@ -107,16 +107,16 @@ TEST(AlgoPracticeTest, test_3_5_sort_stack) {
 }
 
 TEST(AlgoPracticeTest, test_4_2_bst_from_sorted_array) {
-    ankur::BSTNode * root = ankur::bst_from_sorted_array({1,2,3,4,5,6,7,8});
+    ankur::BinaryTreeNode * root = ankur::bst_from_sorted_array({1,2,3,4,5,6,7,8});
     ASSERT_NE(nullptr, root);
     EXPECT_EQ(nullptr, root->parent);
-    ankur::BSTNode * node_1_1 = root->left_child;
-    ankur::BSTNode * node_1_2 = root->right_child;
-    ankur::BSTNode * node_2_1 = node_1_1->left_child;
-    ankur::BSTNode * node_2_2 = node_1_1->right_child;
-    ankur::BSTNode * node_2_3 = node_1_2->left_child;
-    ankur::BSTNode * node_2_4 = node_1_2->right_child;
-    ankur::BSTNode * node_3_1 = node_2_1->left_child;
+    ankur::BinaryTreeNode * node_1_1 = root->left_child;
+    ankur::BinaryTreeNode * node_1_2 = root->right_child;
+    ankur::BinaryTreeNode * node_2_1 = node_1_1->left_child;
+    ankur::BinaryTreeNode * node_2_2 = node_1_1->right_child;
+    ankur::BinaryTreeNode * node_2_3 = node_1_2->left_child;
+    ankur::BinaryTreeNode * node_2_4 = node_1_2->right_child;
+    ankur::BinaryTreeNode * node_3_1 = node_2_1->left_child;
     EXPECT_EQ(nullptr, node_2_1->right_child);
     EXPECT_EQ(nullptr, node_2_2->left_child);
     EXPECT_EQ(nullptr, node_2_2->right_child);
@@ -133,4 +133,32 @@ TEST(AlgoPracticeTest, test_4_2_bst_from_sorted_array) {
     EXPECT_EQ(8, node_2_4->value);
     EXPECT_EQ(1, node_3_1->value);
     delete root;
+}
+
+TEST(AlgoPracticeTest, test_4_5_confirm_if_binary_tree_is_bst) {
+    ankur::BinaryTreeNode * root = ankur::bst_from_sorted_array({1,2,3,4,5,6,7,8,9});
+    EXPECT_TRUE(ankur::is_bst(root));
+    delete root;
+
+    root = new ankur::BinaryTreeNode{};
+    root->value = 2;
+    root->left_child = new ankur::BinaryTreeNode{};
+    root->left_child->value = 4;
+    EXPECT_FALSE(ankur::is_bst(root));
+    delete root;
+
+    root = new ankur::BinaryTreeNode{};
+    root->value = 2;
+    root->left_child = new ankur::BinaryTreeNode{};
+    root->left_child->value = 2;
+    root->right_child = new ankur::BinaryTreeNode{};
+    root->right_child->value = 3;
+    EXPECT_TRUE(ankur::is_bst(root));
+    delete root;
+
+    root = ankur::bst_from_sorted_array({1,2,3,4,5,6,7,8,9});
+    root->value = 10;
+    EXPECT_FALSE(ankur::is_bst(root));
+    delete root;
+
 }

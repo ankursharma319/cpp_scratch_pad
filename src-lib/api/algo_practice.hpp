@@ -56,16 +56,18 @@ private:
 
 void sort_stack_using_another_stack(stack& s);
 
-struct BSTNode {
+struct BinaryTreeNode {
     int value;
-    BSTNode* left_child = nullptr;
-    BSTNode* right_child = nullptr;
-    BSTNode* parent = nullptr;
+    BinaryTreeNode* left_child = nullptr;
+    BinaryTreeNode* right_child = nullptr;
+    BinaryTreeNode* parent = nullptr;
 
-    ~BSTNode();
+    ~BinaryTreeNode();
 };
 
-BSTNode* bst_from_sorted_array(std::vector<int> const& vec);
+BinaryTreeNode* bst_from_sorted_array(std::vector<int> const& vec);
+
+bool is_bst(BinaryTreeNode* root);
 
 }
 
