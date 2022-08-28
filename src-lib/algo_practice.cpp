@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <utility>
 #include <cassert>
+#include <cmath>
 
 namespace {
 
@@ -304,6 +305,44 @@ void sort_stack_using_another_stack(stack& s) {
     while (!tmp_stack.empty()) {
         s.push(tmp_stack.pop());
     }
+}
+
+BSTNode::~BSTNode() {
+    if (left_child) {
+        delete left_child;
+    }
+    if (right_child) {
+        delete right_child;
+    }
+    if (parent && (parent->left_child == this)) {
+        parent->left_child = nullptr;
+    }
+    if (parent && (parent->right_child == this)) {
+        parent->right_child = nullptr;
+    }
+}
+
+BSTNode * _bst_from_sorted_array_recursive(std::vector<int> const& vec, std::size_t begin_index, std::size_t end_index, BSTNode * parent) {
+    assert(begin_index <= end_index);
+    std::size_t mid_index = begin_index + std::ceil((end_index - begin_index)/2.0);
+    BSTNode * centre_node = new BSTNode{};
+    centre_node->parent = parent;
+    centre_node->value = vec.at(mid_index);
+    if (begin_index == end_index) {
+        return centre_node;
+    }
+    centre_node->left_child = _bst_from_sorted_array_recursive(vec, begin_index, mid_index-1, centre_node);
+    if (end_index > begin_index + 1) {
+        centre_node->right_child = _bst_from_sorted_array_recursive(vec, mid_index+1, end_index, centre_node);
+    }
+    return centre_node;
+}
+
+BSTNode* bst_from_sorted_array(std::vector<int> const& vec) {
+    if (vec.size() == 0) {
+        return nullptr;
+    }
+    return _bst_from_sorted_array_recursive(vec, 0, vec.size()-1, nullptr);
 }
 
 }

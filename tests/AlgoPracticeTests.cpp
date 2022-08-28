@@ -105,3 +105,32 @@ TEST(AlgoPracticeTest, test_3_5_sort_stack) {
         EXPECT_EQ(val, s.pop());
     }
 }
+
+TEST(AlgoPracticeTest, test_4_2_bst_from_sorted_array) {
+    ankur::BSTNode * root = ankur::bst_from_sorted_array({1,2,3,4,5,6,7,8});
+    ASSERT_NE(nullptr, root);
+    EXPECT_EQ(nullptr, root->parent);
+    ankur::BSTNode * node_1_1 = root->left_child;
+    ankur::BSTNode * node_1_2 = root->right_child;
+    ankur::BSTNode * node_2_1 = node_1_1->left_child;
+    ankur::BSTNode * node_2_2 = node_1_1->right_child;
+    ankur::BSTNode * node_2_3 = node_1_2->left_child;
+    ankur::BSTNode * node_2_4 = node_1_2->right_child;
+    ankur::BSTNode * node_3_1 = node_2_1->left_child;
+    EXPECT_EQ(nullptr, node_2_1->right_child);
+    EXPECT_EQ(nullptr, node_2_2->left_child);
+    EXPECT_EQ(nullptr, node_2_2->right_child);
+    EXPECT_EQ(nullptr, node_2_3->left_child);
+    EXPECT_EQ(nullptr, node_2_3->right_child);
+    EXPECT_EQ(nullptr, node_2_4->left_child);
+    EXPECT_EQ(nullptr, node_2_4->right_child);
+    EXPECT_EQ(5, root->value);
+    EXPECT_EQ(3, node_1_1->value);
+    EXPECT_EQ(7, node_1_2->value);
+    EXPECT_EQ(2, node_2_1->value);
+    EXPECT_EQ(4, node_2_2->value);
+    EXPECT_EQ(6, node_2_3->value);
+    EXPECT_EQ(8, node_2_4->value);
+    EXPECT_EQ(1, node_3_1->value);
+    delete root;
+}

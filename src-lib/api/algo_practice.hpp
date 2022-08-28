@@ -56,6 +56,17 @@ private:
 
 void sort_stack_using_another_stack(stack& s);
 
+struct BSTNode {
+    int value;
+    BSTNode* left_child = nullptr;
+    BSTNode* right_child = nullptr;
+    BSTNode* parent = nullptr;
+
+    ~BSTNode();
+};
+
+BSTNode* bst_from_sorted_array(std::vector<int> const& vec);
+
 }
 
 #endif
