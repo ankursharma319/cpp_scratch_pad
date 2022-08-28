@@ -284,4 +284,26 @@ int stack::peek() const {
     return impl_->peek();
 }
 
+void sort_stack_using_another_stack(stack& s) {
+    stack tmp_stack;
+    while (!s.empty()) {
+        int tmp_element = s.pop();
+        while (true) {
+            if (tmp_stack.empty()) {
+                tmp_stack.push(tmp_element);
+                break;
+            }
+            if (tmp_stack.peek() > tmp_element) {
+                s.push(tmp_stack.pop());
+            } else {
+                tmp_stack.push(tmp_element);
+                break;
+            }
+        }
+    }
+    while (!tmp_stack.empty()) {
+        s.push(tmp_stack.pop());
+    }
+}
+
 }

@@ -54,6 +54,8 @@ private:
     stack stack1;
 };
 
+void sort_stack_using_another_stack(stack& s);
+
 }
 
 #endif

@@ -94,3 +94,14 @@ TEST(AlgoPracticeTest, test_3_4_queue_via_stacks) {
     EXPECT_EQ(8, q.dequeue());
     EXPECT_TRUE(q.empty());
 }
+
+TEST(AlgoPracticeTest, test_3_5_sort_stack) {
+    ankur::stack s {};
+    for (int val: {9,5,3,7,2,9,1,2,8,4}) {
+        s.push(val);
+    }
+    ankur::sort_stack_using_another_stack(s);
+    for (int val: {1,2,2,3,4,5,7,8,9,9}) {
+        EXPECT_EQ(val, s.pop());
+    }
+}
