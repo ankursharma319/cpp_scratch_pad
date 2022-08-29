@@ -73,6 +73,8 @@ std::size_t number_of_paths_with_sum(BinaryTreeNode const * root, int desired_su
 
 std::uint32_t insert_bit_sequence_into_int(std::uint32_t N, std::uint32_t M, unsigned short i, unsigned short j);
 
+std::string binary_to_string(double n);
+
 }
 
 #endif

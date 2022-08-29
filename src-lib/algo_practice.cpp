@@ -482,4 +482,23 @@ std::uint32_t insert_bit_sequence_into_int(
     return N;
 }
 
+std::string binary_to_string(double n) {
+    assert(n > 0);
+    assert(n < 1);
+    std::string result = "0.";
+    while (n>0) {
+        if (result.size() > 32) {
+            return "ERROR";
+        }
+        if (n*2 >= 1) {
+            result.append("1");
+            n = (n*2) - 1;
+        } else {
+            result.append("0");
+            n = n*2;
+        } 
+    }
+    return result;
+}
+
 }

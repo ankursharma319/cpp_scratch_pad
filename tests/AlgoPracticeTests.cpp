@@ -195,3 +195,12 @@ TEST(AlgoPracticeTest, test_5_1_insert_bit_seq_into_int) {
     EXPECT_EQ(0b10000, ankur::insert_bit_sequence_into_int(0b0, 0b10000, 0, 4));
     EXPECT_EQ(0b111, ankur::insert_bit_sequence_into_int(0b1111111111, 0b0, 3, 9));
 }
+
+TEST(AlgoPracticeTest, test_5_2_binary_as_string) {
+    EXPECT_EQ("0.1", ankur::binary_to_string(0.5));
+    EXPECT_EQ("0.01", ankur::binary_to_string(0.25));
+    EXPECT_EQ("0.11", ankur::binary_to_string(0.75));
+    EXPECT_EQ("0.111", ankur::binary_to_string(0.875));
+    EXPECT_EQ("ERROR", ankur::binary_to_string(0.333));
+    EXPECT_EQ("ERROR", ankur::binary_to_string(0.33333333333));
+}
