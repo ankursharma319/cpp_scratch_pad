@@ -376,4 +376,47 @@ bool is_bst(BinaryTreeNode* root) {
     return _check_if_bst_recursive(root).is_bst;
 }
 
+void _populate_nodes_in_tree_to_vec(BinaryTreeNode const * root, std::vector<BinaryTreeNode const *>& nodes) {
+    if (root == nullptr) {
+        return;
+    }
+    nodes.push_back(root);
+    _populate_nodes_in_tree_to_vec(root->left_child, nodes);
+    _populate_nodes_in_tree_to_vec(root->right_child, nodes);
+}
+
+std::vector<BinaryTreeNode const*> _all_nodes_in_tree(BinaryTreeNode const * root) {
+    std::vector<BinaryTreeNode const*> nodes = {};
+    _populate_nodes_in_tree_to_vec(root, nodes);
+    return nodes;
+}
+
+void _number_of_paths_with_sum_dfs(BinaryTreeNode const * root, std::size_t desired_sum, std::size_t current_sum, std::size_t& desired_sum_count) {
+    if (!root) {
+        return;
+    }
+    current_sum = root->value + current_sum;
+    if (current_sum == desired_sum) {
+        desired_sum_count ++;
+    }
+    _number_of_paths_with_sum_dfs(root->left_child, desired_sum, current_sum, desired_sum_count);
+    _number_of_paths_with_sum_dfs(root->right_child, desired_sum, current_sum, desired_sum_count);
+}
+
+std::size_t _number_of_paths_with_sum_iterative(BinaryTreeNode const * root, std::size_t desired_sum) {
+    std::vector<BinaryTreeNode const*> nodes = _all_nodes_in_tree(root);
+    std::size_t paths_with_desired_sum = 0;
+    for (BinaryTreeNode const * source : nodes) {
+        _number_of_paths_with_sum_dfs(source, desired_sum, 0, paths_with_desired_sum);
+    }
+    return paths_with_desired_sum;
+}
+
+std::size_t number_of_paths_with_sum(BinaryTreeNode const * root, std::size_t desired_sum) {
+    if (!root) {
+        return 0;
+    }
+    return _number_of_paths_with_sum_iterative(root, desired_sum);
+}
+
 }

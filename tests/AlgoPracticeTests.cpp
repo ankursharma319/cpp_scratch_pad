@@ -162,3 +162,30 @@ TEST(AlgoPracticeTest, test_4_5_confirm_if_binary_tree_is_bst) {
     delete root;
 
 }
+
+TEST(AlgoPracticeTest, test_4_12_path_of_sums) {
+    ankur::BinaryTreeNode* root = new ankur::BinaryTreeNode{};
+    root->left_child = new ankur::BinaryTreeNode{};
+    root->right_child = new ankur::BinaryTreeNode{};
+    root->left_child->left_child = new ankur::BinaryTreeNode{};
+    root->left_child->right_child = new ankur::BinaryTreeNode{};
+    root->value = 1;
+    root->left_child->value = 2;
+    root->left_child->left_child->value = 3;
+    root->left_child->right_child->value = -4;
+    root->right_child->value = 2;
+
+    EXPECT_EQ(1, ankur::number_of_paths_with_sum(root, -4));
+    EXPECT_EQ(0, ankur::number_of_paths_with_sum(root, -3));
+    EXPECT_EQ(1, ankur::number_of_paths_with_sum(root, -2));
+    EXPECT_EQ(1, ankur::number_of_paths_with_sum(root, -1));
+    EXPECT_EQ(0, ankur::number_of_paths_with_sum(root, 0));
+    EXPECT_EQ(1, ankur::number_of_paths_with_sum(root, 1));
+    EXPECT_EQ(2, ankur::number_of_paths_with_sum(root, 2));
+    EXPECT_EQ(3, ankur::number_of_paths_with_sum(root, 3));
+    EXPECT_EQ(0, ankur::number_of_paths_with_sum(root, 4));
+    EXPECT_EQ(1, ankur::number_of_paths_with_sum(root, 5));
+    EXPECT_EQ(1, ankur::number_of_paths_with_sum(root, 6));
+    EXPECT_EQ(0, ankur::number_of_paths_with_sum(root, 7));
+    delete root;
+}
