@@ -71,6 +71,8 @@ bool is_bst(BinaryTreeNode* root);
 
 std::size_t number_of_paths_with_sum(BinaryTreeNode const * root, int desired_sum);
 
+std::uint32_t insert_bit_sequence_into_int(std::uint32_t N, std::uint32_t M, unsigned short i, unsigned short j);
+
 }
 
 #endif

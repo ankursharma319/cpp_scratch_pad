@@ -459,4 +459,27 @@ std::size_t number_of_paths_with_sum(BinaryTreeNode const * root, int desired_su
     return _number_of_paths_with_sum_optimized(root, desired_sum, running_sum_counts, 0);
 }
 
+std::uint32_t _clear_bits(std::uint32_t N, unsigned short i, unsigned short j) {
+    // produce mask like 0011000 where 1s are i through j
+    std::uint32_t left_side_ones = (-1 << i);
+    std::uint32_t right_side_ones = (1 << (j+1)) - 1;
+    std::uint32_t mask = left_side_ones & right_side_ones;
+    return N & (~mask);
+}
+
+std::uint32_t insert_bit_sequence_into_int(
+    std::uint32_t N,
+    std::uint32_t M,
+    unsigned short i,
+    unsigned short j
+) {
+    // clear bits i through j in N
+    N = _clear_bits(N, i, j);
+    // M with the relevant bits in correct position
+    M = M << i;
+    // insert
+    N = N | M;
+    return N;
+}
+
 }

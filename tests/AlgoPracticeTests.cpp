@@ -189,3 +189,9 @@ TEST(AlgoPracticeTest, test_4_12_path_of_sums) {
     EXPECT_EQ(0, ankur::number_of_paths_with_sum(root, 7));
     delete root;
 }
+
+TEST(AlgoPracticeTest, test_5_1_insert_bit_seq_into_int) {
+    EXPECT_EQ(0b10001001100, ankur::insert_bit_sequence_into_int(0b10000000000, 0b10011, 2, 6));
+    EXPECT_EQ(0b10000, ankur::insert_bit_sequence_into_int(0b0, 0b10000, 0, 4));
+    EXPECT_EQ(0b111, ankur::insert_bit_sequence_into_int(0b1111111111, 0b0, 3, 9));
+}
