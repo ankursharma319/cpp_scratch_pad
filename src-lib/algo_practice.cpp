@@ -403,7 +403,7 @@ void _number_of_paths_with_sum_dfs(BinaryTreeNode const * root, std::size_t desi
     _number_of_paths_with_sum_dfs(root->right_child, desired_sum, current_sum, desired_sum_count);
 }
 
-std::size_t _number_of_paths_with_sum_iterative(BinaryTreeNode const * root, std::size_t desired_sum) {
+[[maybe_unused]] std::size_t _number_of_paths_with_sum_iterative(BinaryTreeNode const * root, std::size_t desired_sum) {
     std::vector<BinaryTreeNode const*> nodes = _all_nodes_in_tree(root);
     std::size_t paths_with_desired_sum = 0;
     for (BinaryTreeNode const * source : nodes) {
@@ -412,11 +412,51 @@ std::size_t _number_of_paths_with_sum_iterative(BinaryTreeNode const * root, std
     return paths_with_desired_sum;
 }
 
-std::size_t number_of_paths_with_sum(BinaryTreeNode const * root, std::size_t desired_sum) {
+void increment_running_sum_count(
+    std::unordered_map<int, std::size_t> & running_sum_counts,
+    int current_sum, int delta
+) {
+    if (running_sum_counts.count(current_sum) == 0) {
+        assert(delta == 1);
+        running_sum_counts.insert({current_sum, delta});
+    } else {
+        running_sum_counts[current_sum] += delta;
+    }
+}
+
+std::size_t _number_of_paths_with_sum_optimized(
+    BinaryTreeNode const * root,
+    int desired_sum,
+    std::unordered_map<int, std::size_t>& running_sum_counts,
+    std::size_t running_sum
+) {
     if (!root) {
         return 0;
     }
-    return _number_of_paths_with_sum_iterative(root, desired_sum);
+    std::size_t number_of_paths = 0;
+    int current_sum = running_sum + root->value;
+    if (current_sum == desired_sum) {
+        number_of_paths += 1;
+    }
+    if (running_sum_counts.count(current_sum-desired_sum) == 1) {
+        number_of_paths += running_sum_counts.at(current_sum-desired_sum);
+    }
+
+    increment_running_sum_count(running_sum_counts, current_sum, 1);
+    number_of_paths += _number_of_paths_with_sum_optimized(root->left_child, desired_sum, running_sum_counts, current_sum);
+    number_of_paths += _number_of_paths_with_sum_optimized(root->right_child, desired_sum, running_sum_counts, current_sum);
+    increment_running_sum_count(running_sum_counts, current_sum, -1);
+
+    return number_of_paths;
+}
+
+std::size_t number_of_paths_with_sum(BinaryTreeNode const * root, int desired_sum) {
+    if (!root) {
+        return 0;
+    }
+    //return _number_of_paths_with_sum_iterative(root, desired_sum);
+    std::unordered_map<int, std::size_t> running_sum_counts {};
+    return _number_of_paths_with_sum_optimized(root, desired_sum, running_sum_counts, 0);
 }
 
 }

@@ -69,7 +69,7 @@ BinaryTreeNode* bst_from_sorted_array(std::vector<int> const& vec);
 
 bool is_bst(BinaryTreeNode* root);
 
-std::size_t number_of_paths_with_sum(BinaryTreeNode const * root, std::size_t desired_sum);
+std::size_t number_of_paths_with_sum(BinaryTreeNode const * root, int desired_sum);
 
 }
 
