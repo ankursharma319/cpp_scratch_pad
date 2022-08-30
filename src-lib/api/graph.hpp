@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <optional>
 
 namespace ankur {
 

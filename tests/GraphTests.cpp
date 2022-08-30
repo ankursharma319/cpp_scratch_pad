@@ -55,7 +55,7 @@ TEST(GraphTest, test_topological_sort) {
         for (auto const& [possible_source, dests] : adj_list) {
             bool contains_node_in_dests = std::find(dests.cbegin(), dests.cend(), node) != dests.cend();
             if (contains_node_in_dests){
-                assert(checked.count(possible_source) == 1);
+                EXPECT_EQ(1, checked.count(possible_source));
             }
         }
         checked.insert(node);

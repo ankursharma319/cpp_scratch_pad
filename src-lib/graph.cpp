@@ -1,6 +1,7 @@
 #include "graph.hpp"
 
 #include <unordered_set>
+#include <algorithm>
 
 namespace {
 
@@ -64,6 +65,7 @@ std::vector<int> topological_sort(std::unordered_map<int, std::vector<int>> cons
         int vertex = *unvisited_vertices.begin();
         dfs_visit_for_top_sort(adj_list, vertex, res, unvisited_vertices);
     }
+    std::reverse(res.begin(), res.end());
     return res;
 }
 
