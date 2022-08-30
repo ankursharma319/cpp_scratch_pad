@@ -225,4 +225,6 @@ TEST(AlgoPracticeTest, test_5_4_next_smallest_int_with_same_number_of_ones) {
     EXPECT_EQ(0b111010, ankur::next_smallest_int_with_same_number_of_ones(0b111100));
     EXPECT_EQ(0b1111, ankur::next_smallest_int_with_same_number_of_ones(0b10111));
     EXPECT_EQ(0b101111, ankur::next_smallest_int_with_same_number_of_ones(0b110111));
+    EXPECT_EQ(0b10101110, ankur::next_smallest_int_with_same_number_of_ones(0b10110011));
+    EXPECT_EQ(0b11011011111100, ankur::next_smallest_int_with_same_number_of_ones(0b11011100011111));
 }

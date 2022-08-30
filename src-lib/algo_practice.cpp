@@ -536,6 +536,31 @@ std::uint32_t _update_bit(std::uint32_t n, std::size_t index, bool val) {
     return cleared | (val<<index);
 }
 
+std::size_t _count_ones_in_bit_sub_sequence(std::uint32_t n, std::size_t i, std::size_t j) {
+    assert(j >= i);
+    std::size_t count = 0;
+    for (std::size_t x=i; x<=j; x++) {
+        bool current_bit = 1 & (n >> x);
+        count += current_bit;
+    }
+    return count;
+}
+
+std::uint32_t _fill_bit_sub_sequence(std::uint32_t n, std::size_t i, std::size_t j, bool val) {
+    if (j < i) {
+        return n;
+    }
+    // produce mask like 00000xxx0000 where x is val
+    std::uint32_t left_ones_mask = (-1) << i;
+    std::uint32_t right_ones_mask = (1 << (j+1))-1;
+    std::uint32_t mask = val ? (left_ones_mask & right_ones_mask) : 0;
+    // clear middle part
+    std::uint32_t mask_for_clearing = ~(left_ones_mask & right_ones_mask);
+    std::size_t cleared = n & mask_for_clearing;
+    std::uint32_t result = cleared | mask;
+    return result;
+}
+
 std::uint32_t next_smallest_int_with_same_number_of_ones(std::uint32_t n) {
     // find the first transition from 0 to 1 (going from LSB to MSB)
     // and swap the 2 bits
@@ -545,6 +570,14 @@ std::uint32_t next_smallest_int_with_same_number_of_ones(std::uint32_t n) {
         if ((next_bit == 1) && (current_bit == 0)) {
             n = _update_bit(n, i, 1);
             n = _update_bit(n, i+1, 0);
+            if (i == 0) {
+                return n;
+            }
+            // move all 1s (which are currently to the right of i) so that they are left aligned towards i
+            std::size_t ones_count = _count_ones_in_bit_sub_sequence(n, 0, i-1);
+            std::size_t zeros_count = i-ones_count;
+            n = _fill_bit_sub_sequence(n, 0, zeros_count-1, 0);
+            n = _fill_bit_sub_sequence(n, zeros_count, zeros_count+ones_count-1, 1);
             return n;
         }
     }
