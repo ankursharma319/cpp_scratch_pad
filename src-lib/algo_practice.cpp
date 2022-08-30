@@ -528,4 +528,27 @@ std::size_t flip_a_bit_for_longest_ones_bit_sequence(std::uint32_t n) {
     return longest_seq;
 }
 
+std::uint32_t _update_bit(std::uint32_t n, std::size_t index, bool val) {
+    //clear bit using 111101111 looking mask
+    std::uint32_t mask = ~(1<<index);
+    std::uint32_t cleared = mask & n;
+    //set bit to val
+    return cleared | (val<<index);
+}
+
+std::uint32_t next_smallest_int_with_same_number_of_ones(std::uint32_t n) {
+    // find the first transition from 0 to 1 (going from LSB to MSB)
+    // and swap the 2 bits
+    for (std::size_t i=0; i < sizeof(std::uint32_t)*8; i++) {
+        std::uint32_t current_bit = (n >> i) & 1;
+        std::uint32_t next_bit = (n >> (i + 1)) & 1;
+        if ((next_bit == 1) && (current_bit == 0)) {
+            n = _update_bit(n, i, 1);
+            n = _update_bit(n, i+1, 0);
+            return n;
+        }
+    }
+    return n;
+}
+
 }

@@ -76,6 +76,9 @@ std::uint32_t insert_bit_sequence_into_int(std::uint32_t N, std::uint32_t M, uns
 std::string binary_to_string(double n);
 
 std::size_t flip_a_bit_for_longest_ones_bit_sequence(std::uint32_t n);
+
+std::uint32_t next_smallest_int_with_same_number_of_ones(std::uint32_t n);
+
 }
 
 #endif

@@ -214,3 +214,15 @@ TEST(AlgoPracticeTest, test_5_3_flip_a_bit) {
     EXPECT_EQ(8, ankur::flip_a_bit_for_longest_ones_bit_sequence(0b11011101111));
     EXPECT_EQ(7, ankur::flip_a_bit_for_longest_ones_bit_sequence(0b111101101));
 }
+
+TEST(AlgoPracticeTest, test_5_4_next_smallest_int_with_same_number_of_ones) {
+    EXPECT_EQ(0b1001, ankur::next_smallest_int_with_same_number_of_ones(0b1010));
+    EXPECT_EQ(0b1010, ankur::next_smallest_int_with_same_number_of_ones(0b1100));
+    EXPECT_EQ(0b101, ankur::next_smallest_int_with_same_number_of_ones(0b110));
+    EXPECT_EQ(0b1011, ankur::next_smallest_int_with_same_number_of_ones(0b1101));
+    EXPECT_EQ(0b1010011, ankur::next_smallest_int_with_same_number_of_ones(0b1010101));
+    EXPECT_EQ(0b10101001, ankur::next_smallest_int_with_same_number_of_ones(0b10101010));
+    EXPECT_EQ(0b111010, ankur::next_smallest_int_with_same_number_of_ones(0b111100));
+    EXPECT_EQ(0b1111, ankur::next_smallest_int_with_same_number_of_ones(0b10111));
+    EXPECT_EQ(0b101111, ankur::next_smallest_int_with_same_number_of_ones(0b110111));
+}
