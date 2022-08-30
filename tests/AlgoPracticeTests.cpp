@@ -204,3 +204,13 @@ TEST(AlgoPracticeTest, test_5_2_binary_as_string) {
     EXPECT_EQ("ERROR", ankur::binary_to_string(0.333));
     EXPECT_EQ("ERROR", ankur::binary_to_string(0.33333333333));
 }
+
+TEST(AlgoPracticeTest, test_5_3_flip_a_bit) {
+    EXPECT_EQ(1, ankur::flip_a_bit_for_longest_ones_bit_sequence(0b0));
+    EXPECT_EQ(4, ankur::flip_a_bit_for_longest_ones_bit_sequence(0b1110));
+    EXPECT_EQ(3, ankur::flip_a_bit_for_longest_ones_bit_sequence(0b101010));
+    EXPECT_EQ(6, ankur::flip_a_bit_for_longest_ones_bit_sequence(0b11111));
+    EXPECT_EQ(6, ankur::flip_a_bit_for_longest_ones_bit_sequence(0b1101110101));
+    EXPECT_EQ(8, ankur::flip_a_bit_for_longest_ones_bit_sequence(0b11011101111));
+    EXPECT_EQ(7, ankur::flip_a_bit_for_longest_ones_bit_sequence(0b111101101));
+}

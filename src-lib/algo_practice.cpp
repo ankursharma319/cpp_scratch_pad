@@ -4,6 +4,8 @@
 #include <cassert>
 #include <cmath>
 
+#include <iostream>
+
 namespace {
 
 [[maybe_unused]] bool _is_palindrome_permutation_v1(std::string const& s) {
@@ -499,6 +501,47 @@ std::string binary_to_string(double n) {
         } 
     }
     return result;
+}
+
+std::size_t flip_a_bit_for_longest_ones_bit_sequence(std::uint32_t n) {
+    std::size_t longest_sequence_with_a_lifeline = 0;
+    std::size_t current_ones_sequence_length = 0;
+    bool previous_bit = 0;
+    bool lifeline_used_for_current_sequence = false;
+    for (; n != 0; n=n/2) {
+        bool current_bit = n%2;
+        if (current_bit == 1) {
+            current_ones_sequence_length ++;
+        } else if ((current_bit == 0) && (previous_bit == 1)) {
+            if (lifeline_used_for_current_sequence) {
+                // record current sequence length
+                if (longest_sequence_with_a_lifeline < current_ones_sequence_length) {
+                    longest_sequence_with_a_lifeline = current_ones_sequence_length;
+                }
+                current_ones_sequence_length = 0;
+                lifeline_used_for_current_sequence = false;
+            } else {
+                // use lifeline
+                current_ones_sequence_length ++;
+                lifeline_used_for_current_sequence = true;
+            }
+        } else if ((current_bit == 0) && (previous_bit == 0)) {
+            // do nothing
+        } else {
+            assert(false);
+            return 0;
+        }
+        previous_bit = current_bit;
+    }
+    // assume there is a zero at the beginning
+    if (!lifeline_used_for_current_sequence) {
+        // use lifeline
+        current_ones_sequence_length ++;
+    }
+    if (longest_sequence_with_a_lifeline < current_ones_sequence_length) {
+        longest_sequence_with_a_lifeline = current_ones_sequence_length;
+    }
+    return longest_sequence_with_a_lifeline;
 }
 
 }
