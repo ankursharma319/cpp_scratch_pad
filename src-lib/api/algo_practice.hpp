@@ -5,6 +5,7 @@
 #include <optional>
 #include <vector>
 #include <memory>
+#include <unordered_set>
 
 namespace ankur {
 
@@ -80,6 +81,8 @@ std::size_t flip_a_bit_for_longest_ones_bit_sequence(std::uint32_t n);
 std::uint32_t next_smallest_int_with_same_number_of_ones(std::uint32_t n);
 
 std::size_t count_number_of_step_hop_sequences_to_cover_n_steps(std::size_t n);
+
+std::unordered_set<std::string> permutation_without_dups(std::string const& s);
 
 }
 

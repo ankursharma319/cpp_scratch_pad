@@ -236,3 +236,19 @@ TEST(AlgoPracticeTest, test_8_1_triple_step) {
     // [[1,1,1,1], [1,1,2],[1,2,1],[2,1,1],[2,2],[1,3],[3,1]]
     EXPECT_EQ(7, ankur::count_number_of_step_hop_sequences_to_cover_n_steps(4));
 }
+
+TEST(AlgoPracticeTest, test_8_7_permutation_without_dups) {
+    EXPECT_EQ(
+        std::unordered_set<std::string>({"a"}),
+        ankur::permutation_without_dups("a")
+    );
+    EXPECT_EQ(
+        std::unordered_set<std::string>({"aA", "Aa"}),
+        ankur::permutation_without_dups("aA")
+    );
+    EXPECT_EQ(
+        std::unordered_set<std::string>({"abc", "acb", "bac", "bca", "cab", "cba"}),
+        ankur::permutation_without_dups("abc")
+    );
+    EXPECT_EQ(24, ankur::permutation_without_dups("abcd").size());
+}

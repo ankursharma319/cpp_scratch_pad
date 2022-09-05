@@ -613,4 +613,27 @@ std::size_t count_number_of_step_hop_sequences_to_cover_n_steps(std::size_t n) {
     return _count_remaining_steps_possibilities(n, memo);
 }
 
+std::unordered_set<std::string> _permutation_without_dups_suffix(std::string s) {
+    if (0 == s.size()) {
+        return {};
+    }
+    if (s.size() == 1) {
+        return {s};
+    }
+    std::unordered_set<std::string> result;
+    for (std::size_t i = 0; i<s.size(); i++) {
+        std::string remaining_string = s.substr(0,i) + s.substr(i+1, s.size()-i-1);
+        char current_char = s.at(i);
+        std::unordered_set<std::string> suffix_permutations = _permutation_without_dups_suffix(remaining_string);
+        for (auto it = suffix_permutations.begin(); it != suffix_permutations.end(); it++) {
+            result.insert(std::string{current_char} + (*it));
+        }
+    }
+    return result;
+}
+
+std::unordered_set<std::string> permutation_without_dups(std::string const& s) {
+    return _permutation_without_dups_suffix(s);
+}
+
 }
