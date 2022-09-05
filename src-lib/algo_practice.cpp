@@ -584,4 +584,33 @@ std::uint32_t next_smallest_int_with_same_number_of_ones(std::uint32_t n) {
     return n;
 }
 
+std::size_t _count_remaining_steps_possibilities(std::size_t n, std::unordered_map<std::size_t, std::size_t> counts_memo) {
+    if (counts_memo.count(n) == 1) {
+        return counts_memo.at(n);
+    }
+    if (n == 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return 1;
+    }
+    if (n == 2) {
+        return 2;
+    }
+    if (n == 3) {
+        return 4;
+    }
+    std::size_t count =
+        _count_remaining_steps_possibilities(n-1, counts_memo) +
+        _count_remaining_steps_possibilities(n-2, counts_memo) +
+        _count_remaining_steps_possibilities(n-3, counts_memo);
+    counts_memo[n] = count;
+    return counts_memo.at(n);
+}
+
+std::size_t count_number_of_step_hop_sequences_to_cover_n_steps(std::size_t n) {
+    std::unordered_map<std::size_t, std::size_t> memo {};
+    return _count_remaining_steps_possibilities(n, memo);
+}
+
 }

@@ -228,3 +228,11 @@ TEST(AlgoPracticeTest, test_5_4_next_smallest_int_with_same_number_of_ones) {
     EXPECT_EQ(0b10101110, ankur::next_smallest_int_with_same_number_of_ones(0b10110011));
     EXPECT_EQ(0b11011011111100, ankur::next_smallest_int_with_same_number_of_ones(0b11011100011111));
 }
+
+TEST(AlgoPracticeTest, test_8_1_triple_step) {
+    EXPECT_EQ(1, ankur::count_number_of_step_hop_sequences_to_cover_n_steps(1));
+    EXPECT_EQ(2, ankur::count_number_of_step_hop_sequences_to_cover_n_steps(2));
+    EXPECT_EQ(4, ankur::count_number_of_step_hop_sequences_to_cover_n_steps(3));
+    // [[1,1,1,1], [1,1,2],[1,2,1],[2,1,1],[2,2],[1,3],[3,1]]
+    EXPECT_EQ(7, ankur::count_number_of_step_hop_sequences_to_cover_n_steps(4));
+}
