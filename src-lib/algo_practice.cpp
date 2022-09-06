@@ -682,4 +682,28 @@ std::size_t count_ways_to_represent_n_cents(std::size_t n, std::vector<std::size
     return _count_ways_for_remaining(n, denoms, denoms.size()-1, memo);
 }
 
+bool _is_base_big_enough(std::size_t base_h, std::size_t base_w, std::size_t base_d, my_box const& box) {
+    return (base_h >= box.height) && (base_d >= box.depth) && (base_w >= box.width);
+}
+
+// optimization: memmoize
+std::size_t _compute_tallest_height_with_base_and_remaining_stack(std::vector<my_box> boxes, std::size_t base_h, std::size_t base_w, std::size_t base_d) {
+    std::size_t tallest_height = 0;
+    for (std::size_t i=0; i<boxes.size(); i++) {
+        if (_is_base_big_enough(base_h, base_w, base_d, boxes.at(i))) {
+            std::vector<my_box> remaining_boxes = boxes;
+            remaining_boxes.erase(remaining_boxes.begin() + i);
+            std::size_t remaining_height = _compute_tallest_height_with_base_and_remaining_stack(remaining_boxes, boxes.at(i).height, boxes.at(i).width, boxes.at(i).depth);
+            if (tallest_height < remaining_height + boxes.at(i).height) {
+                tallest_height = remaining_height + boxes.at(i).height;
+            }
+        }
+    }
+    return tallest_height;
+}
+
+std::size_t compute_tallest_height_of_stack(std::vector<my_box> const& boxes) {
+    return _compute_tallest_height_with_base_and_remaining_stack(boxes, -1, -1, -1);
+}
+
 }

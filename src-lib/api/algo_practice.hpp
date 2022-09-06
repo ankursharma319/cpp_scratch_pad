@@ -86,6 +86,14 @@ std::unordered_set<std::string> permutation_without_dups(std::string const& s);
 
 std::size_t count_ways_to_represent_n_cents(std::size_t n, std::vector<std::size_t> const& denoms);
 
+struct my_box {
+    double height;
+    double width;
+    double depth;
+};
+
+std::size_t compute_tallest_height_of_stack(std::vector<my_box> const& boxes);
+
 }
 
 #endif

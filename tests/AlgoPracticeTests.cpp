@@ -258,3 +258,11 @@ TEST(AlgoPracticeTest, test_8_11_coins_representating_n_cents) {
     EXPECT_EQ(1, ankur::count_ways_to_represent_n_cents(4, {1,5,10,25}));
     EXPECT_EQ(4, ankur::count_ways_to_represent_n_cents(10, {1,5,10,25}));
 }
+
+TEST(AlgoPracticeTest, test_8_13_stack_of_boxes) {
+    EXPECT_EQ(0, ankur::compute_tallest_height_of_stack({}));
+    EXPECT_EQ(20, ankur::compute_tallest_height_of_stack({{20,15,10}}));
+    EXPECT_EQ(30, ankur::compute_tallest_height_of_stack({{20,5,5}, {10,5,3}}));
+    EXPECT_EQ(35, ankur::compute_tallest_height_of_stack({{20,5,5}, {10,5,3}, {5,4,3}}));
+    EXPECT_EQ(25, ankur::compute_tallest_height_of_stack({{20,5,5}, {10,6,3}, {5,4,3}}));
+}
