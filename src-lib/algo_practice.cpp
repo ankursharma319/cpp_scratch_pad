@@ -631,9 +631,55 @@ std::unordered_set<std::string> _permutation_without_dups_suffix(std::string s) 
     }
     return result;
 }
+struct pair_hash
+{
+    template <class T1, class T2>
+    std::size_t operator() (const std::pair<T1, T2> &pair) const {
+        return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
+    }
+};
 
 std::unordered_set<std::string> permutation_without_dups(std::string const& s) {
     return _permutation_without_dups_suffix(s);
+}
+
+std::size_t _count_ways_for_remaining(
+    std::size_t n,
+    std::vector<std::size_t> const& denoms,
+    std::size_t denom_index,
+    std::unordered_map<std::pair<std::size_t, std::size_t>, std::size_t, pair_hash>& memo
+) {
+    //count ways for representing n using denoms[:denom_index]
+    if (memo.count({n, denom_index}) == 1) {
+        return memo.at({n, denom_index});
+    }
+    if (n == 0) {
+        return 1;
+    }
+    if (denoms.size() == 0) {
+        return 0;
+    }
+    assert(denom_index < denoms.size());
+    if (denom_index == 0) {
+        if ((n % denoms.at(denom_index)) == 0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    std::size_t result = 0;
+    std::size_t current_denom = denoms.at(denom_index);
+    for (std::size_t current_denom_count=0; current_denom_count * current_denom <= n; current_denom_count++) {
+        std::size_t count_for_remaining = _count_ways_for_remaining(n-current_denom_count*current_denom, denoms, denom_index-1, memo);
+        result += count_for_remaining;
+    }
+    memo[{n, denom_index}] = result;
+    return memo.at({n, denom_index});
+}
+
+std::size_t count_ways_to_represent_n_cents(std::size_t n, std::vector<std::size_t> const& denoms) {
+    std::unordered_map<std::pair<std::size_t, std::size_t>, std::size_t, pair_hash> memo {};
+    return _count_ways_for_remaining(n, denoms, denoms.size()-1, memo);
 }
 
 }

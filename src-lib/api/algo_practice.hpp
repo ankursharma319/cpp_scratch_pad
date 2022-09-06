@@ -84,6 +84,8 @@ std::size_t count_number_of_step_hop_sequences_to_cover_n_steps(std::size_t n);
 
 std::unordered_set<std::string> permutation_without_dups(std::string const& s);
 
+std::size_t count_ways_to_represent_n_cents(std::size_t n, std::vector<std::size_t> const& denoms);
+
 }
 
 #endif

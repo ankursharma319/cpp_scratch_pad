@@ -252,3 +252,9 @@ TEST(AlgoPracticeTest, test_8_7_permutation_without_dups) {
     );
     EXPECT_EQ(24, ankur::permutation_without_dups("abcd").size());
 }
+
+TEST(AlgoPracticeTest, test_8_11_coins_representating_n_cents) {
+    EXPECT_EQ(1, ankur::count_ways_to_represent_n_cents(1, {1,5,10,25}));
+    EXPECT_EQ(1, ankur::count_ways_to_represent_n_cents(4, {1,5,10,25}));
+    EXPECT_EQ(4, ankur::count_ways_to_represent_n_cents(10, {1,5,10,25}));
+}
