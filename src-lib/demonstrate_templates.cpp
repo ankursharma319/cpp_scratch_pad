@@ -250,11 +250,11 @@ template <typename T>
 struct my_const_templated_foo {
     using current_type = T;
     void foo(const T t) {
-        std::cout << "my_templated_foo::foo with const T = " << type_name<decltype(t)>() << std::endl;
+        std::cout << "my_const_templated_foo::foo with const T = " << type_name<decltype(t)>() << std::endl;
     }
 
     void fooRef(const T& t) {
-        std::cout << "my_templated_foo::fooRef with const T& = " << type_name<decltype(t)>() << std::endl;
+        std::cout << "my_const_templated_foo::fooRef with const T& = " << type_name<decltype(t)>() << std::endl;
     }
 };
 
@@ -350,7 +350,7 @@ void demonstrate_templates_type_deduction() {
     single_template_func<int&&>(std::move(vi));
     single_template_func<int&&>(8);
     single_template_func<const int&>(8);
-    //single_template_func<int&>(8); - fails to cpmile
+    //single_template_func<int&>(8); - fails to compile - because 8 is not a lvalue reference
 
     int& rvi = vi;
     std::cout << "Trying my_single_forwarding_foo" << std::endl;
