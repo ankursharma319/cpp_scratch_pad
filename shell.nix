@@ -1,4 +1,4 @@
-{ pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/9a17f325397d137ac4d219ecbd5c7f15154422f4.tar.gz") {}}:
+{ pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/95642fb287d3ea743d0401770f0b2043646d0032.tar.gz") {}}:
 
 pkgs.mkShell {
     nativeBuildInputs = [
@@ -11,6 +11,6 @@ pkgs.mkShell {
         pkgs.python39Packages.gprof2dot
         pkgs.xdot
         pkgs.graphviz
-        pkgs.clang_13
+        pkgs.clang_15
     ];
 }
