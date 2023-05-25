@@ -266,3 +266,19 @@ TEST(AlgoPracticeTest, test_8_13_stack_of_boxes) {
     EXPECT_EQ(35, ankur::compute_tallest_height_of_stack({{20,5,5}, {10,5,3}, {5,4,3}}));
     EXPECT_EQ(25, ankur::compute_tallest_height_of_stack({{20,5,5}, {10,6,3}, {5,4,3}}));
 }
+
+TEST(AlgoPracticeTest, neetcode_encode_decode_strings) {
+    std::vector<std::vector<std::string>> inputs {
+        {""},
+        {"", ""},
+        {},
+        {"hello", "world"},
+        {"lint","code","love","you"},
+        {"//","",";",":","",";;",},
+        {"a","","",":","::",";;",":;"},
+    };
+    for (auto const& input: inputs) {
+        EXPECT_EQ(input, ankur::string_list_decode(ankur::string_list_encode(input)));
+    }
+}
+

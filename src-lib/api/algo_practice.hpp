@@ -94,6 +94,9 @@ struct my_box {
 
 std::size_t compute_tallest_height_of_stack(std::vector<my_box> const& boxes);
 
+std::vector<std::string> string_list_decode(std::string const& str);
+std::string string_list_encode(std::vector<std::string> const& strs);
+
 }
 
 #endif

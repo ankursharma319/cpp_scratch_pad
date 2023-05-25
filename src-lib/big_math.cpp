@@ -96,10 +96,13 @@ base_type lo(base_type x) {
 
 template<typename base_type>
 void multiply(base_type x1, base_type x2, base_type& result, base_type& carry) {
+
+    // https://stackoverflow.com/questions/1815367/catch-and-compute-overflow-during-multiplication-of-two-large-integers
     // normal multiplication does not give us the carry, only the result
     // in order to calculate the carry
     // split both operands into half-words
     // then apply long multiplication to the half-words
+
     //std::cout << "multiplying x1 = " << x1 << " and x2 = " << x2 << std::endl;
     //std::cout << "multiplying x1 = " << to_binary(x1) << " and x2 = " << to_binary(x2) << std::endl;
     base_type s1, s2, s3, s4, temp;

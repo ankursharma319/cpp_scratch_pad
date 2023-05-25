@@ -706,4 +706,53 @@ std::size_t compute_tallest_height_of_stack(std::vector<my_box> const& boxes) {
     return _compute_tallest_height_with_base_and_remaining_stack(boxes, -1, -1, -1);
 }
 
+std::vector<std::string> string_list_decode(std::string const& str) {
+    std::vector<std::string> res {};
+    std::size_t i=0;
+    std::string current_str = "";
+    bool escape = false;
+    while (i < str.size()) {
+        char c = str.at(i);
+        i++;
+        if (escape) {
+            current_str += c;
+            escape = false;
+            continue;
+        }
+        if (c == ':') {
+            escape = true;
+            continue;
+        }
+        if (c != ';') {
+            current_str += c;
+            continue;
+        }
+        res.push_back(current_str);
+        current_str = "";
+    }
+    assert(!escape);
+    assert(current_str.empty());
+    return res;
+}
+
+std::string escape(std::string const& s) {
+    std::string res {};
+    for (char c: s) {
+        if (c == ';' || c == ':') {
+            res += ':';
+        }
+        res += c;
+    }
+    return res;
+}
+
+std::string string_list_encode(std::vector<std::string> const& strs) {
+    std::string res = "";
+    for (auto it=strs.cbegin(); it != strs.cend(); it++) {
+        res += escape(*it);
+        res += ";";
+    }
+    return res;
+}
+
 }
