@@ -9,7 +9,7 @@ template<typename K, typename V>
 std::unordered_set<K> key_set(std::unordered_map<K, V> const& map) {
     std::unordered_set<K> keys {};
     for (auto it = map.cbegin(); it != map.cend(); it++) {
-        keys.insert(it->first); 
+        keys.insert(it->first);
     }
     return keys;
 }
@@ -39,7 +39,7 @@ GraphBFSResults bfs_visit(std::unordered_map<int, std::vector<int>> const& adj_l
     results.parents.insert({starting_vertex, std::nullopt});
     std::vector<int> frontier {starting_vertex};
     std::size_t level = 0;
-    while (!frontier.empty()) {    
+    while (!frontier.empty()) {
         std::vector<int> new_frontier{};
         for (int node: frontier) {
             results.visited.push_back(node);
