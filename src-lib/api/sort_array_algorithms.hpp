@@ -319,6 +319,8 @@ void move_pivot_to_right(my_span<T>& span, std::size_t start, std::size_t end) {
     T& right = span[end];
     std::size_t mid_index = start + (end-start)/2;
     T& mid = span[mid_index];
+    // median of left, right and mid is the pivot
+    // and should be moved to the right
     if (((left > right) && (left < mid)) || ((left < right) && (left > mid))) {
         std::swap(left, right);
         return;
