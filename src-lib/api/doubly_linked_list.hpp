@@ -58,8 +58,13 @@ struct node
 };
 
 struct doubly_linked_list_iterator
-: public std::iterator<std::bidirectional_iterator_tag, int,std::ptrdiff_t, int*, int&>
 {
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = int;
+    using difference_type = std::ptrdiff_t;
+    using pointer = int*;
+    using reference = int&;
+
     doubly_linked_list_iterator(node * node_ptr): m_node_ptr(node_ptr) {}
 
     int& operator*() const {
