@@ -7,7 +7,15 @@ add_executable(CppScratchPadTests
     BigMathTests.cpp GraphTests.cpp AlgoPracticeTests.cpp
 )
 
-target_link_libraries(CppScratchPadTests gtest_main)
+# Use system GTest if found, otherwise use FetchContent's gtest_main
+if(GTest_FOUND)
+    # Re-import the GTest targets in this scope
+    find_package(GTest CONFIG REQUIRED)
+    find_package(Threads REQUIRED)
+    target_link_libraries(CppScratchPadTests GTest::gtest GTest::gtest_main Threads::Threads)
+else()
+    target_link_libraries(CppScratchPadTests gtest_main)
+endif()
 target_link_libraries(CppScratchPadTests MainLib)
 
 include(GoogleTest)

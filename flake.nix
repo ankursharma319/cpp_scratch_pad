@@ -28,6 +28,7 @@
               pkgs.cmake
           ];
           buildInputs = if pkgs.stdenv.isDarwin then [] else [pkgs.valgrind] ++ [
+              pkgs.gtest
               pkgs.git
               pkgs.gdb
               pkgs.which
@@ -44,7 +45,73 @@
         let
           pkgs = nixpkgsFor.${system};
         in
-        pkgs.hello
+        pkgs.stdenv.mkDerivation {
+          pname = "cpp-scratch-pad";
+          version = "0.1.0";
+          src = ./.;
+
+          nativeBuildInputs = [ pkgs.cmake ];
+          buildInputs = [ pkgs.gtest ];
+
+          cmakeFlags = [
+            "-DCMAKE_BUILD_TYPE=Debug"
+          ];
+
+          doCheck = true;
+          checkPhase = ''
+            ./tests/CppScratchPadTests
+          '';
+
+          installPhase = ''
+            mkdir -p $out/bin
+            cp src-exe/MainExe $out/bin/
+            cp tests/CppScratchPadTests $out/bin/
+          '';
+
+          meta.mainProgram = "CppScratchPadTests";
+        }
+      );
+
+      # utilized by `nix build .#callgrind` and `nix run .#callgrind`
+      packages = forAllSystems(system:
+        let
+          pkgs = nixpkgsFor.${system};
+          mainPackage = self.defaultPackage.${system};
+        in
+        {
+          default = mainPackage;
+          callgrind = pkgs.writeShellScriptBin "run-callgrind" ''
+            set -e
+            OUTPUT_DIR="''${1:-.}"
+            echo "Running tests under callgrind..."
+            ${pkgs.valgrind}/bin/valgrind \
+              --tool=callgrind \
+              --simulate-cache=yes \
+              --callgrind-out-file="$OUTPUT_DIR/callgrind.out" \
+              ${mainPackage}/bin/CppScratchPadTests
+            echo "Generating callgrind visualization..."
+            ${pkgs.gprof2dot}/bin/gprof2dot -f callgrind "$OUTPUT_DIR/callgrind.out" | \
+              ${pkgs.graphviz}/bin/dot -Tsvg -o "$OUTPUT_DIR/callgrind_output.svg"
+            echo "Output written to $OUTPUT_DIR/callgrind_output.svg"
+          '';
+        }
+      );
+
+      # Apps for `nix run`
+      apps = forAllSystems(system:
+        let
+          pkgs = nixpkgsFor.${system};
+        in
+        {
+          default = {
+            type = "app";
+            program = "${self.defaultPackage.${system}}/bin/CppScratchPadTests";
+          };
+          callgrind = {
+            type = "app";
+            program = "${self.packages.${system}.callgrind}/bin/run-callgrind";
+          };
+        }
       );
     };
 }
