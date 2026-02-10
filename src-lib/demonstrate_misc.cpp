@@ -330,7 +330,8 @@ int func_accepting_MyStruct(const MyStruct& m) {
     std::cout << "inside func_accepting_MyStruct const ref for m.getX() = " << m.getX() << std::endl;
     std::cout << "type of std::move(m) = " << type_name<decltype(std::move(m))>() << std::endl;
     // this doesnot infact move, but instead copy - because m is const - https://stackoverflow.com/questions/28595117/why-can-we-use-stdmove-on-a-const-object
-    MyStruct y = std::move(m);
+    // MyStruct y = std::move(m);
+    MyStruct y = m;
     std::cout << "done std::move to create y with y.getX() = " << y.getX() << std::endl;
     return y.getX();
 }

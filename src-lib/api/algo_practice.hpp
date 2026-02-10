@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_set>
+#include <cstdint>
 
 namespace ankur {
 

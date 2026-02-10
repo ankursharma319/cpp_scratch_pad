@@ -1,4 +1,5 @@
 #include "graph.hpp"
+#include <algorithm>
 #include <cstddef>
 #include <gtest/gtest.h>
 #include <unordered_set>

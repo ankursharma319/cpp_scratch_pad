@@ -31,10 +31,10 @@
               pkgs.git
               pkgs.gdb
               pkgs.which
-              pkgs.python39Packages.gprof2dot
+              pkgs.gprof2dot
               pkgs.xdot
               pkgs.graphviz
-              pkgs.clang_19
+              pkgs.clang_22
           ];
         }
 
